@@ -36,7 +36,10 @@ section {
 
 /* Make the Game Board section wider */
 #game {
-  width: 600px; /* doubled from 300px */
+  width: 600px; /* doubled width */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* Chat box */
@@ -52,9 +55,9 @@ section {
 /* Game table (circle board) */
 #table {
   position: relative;
-  width: 500px;   /* original size */
-  height: 500px;  /* original size */
-  margin: auto;
+  width: 500px;   /* original circle size */
+  height: 500px;  /* original circle size */
+  margin: 20px auto;
   border-radius: 50%;
   background: radial-gradient(circle, #2e7d32 60%, #1b5e20 100%); /* green felt look */
   box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
@@ -130,8 +133,3 @@ button:hover {
   background: #666;
   transform: translateY(-2px);
 }
-
-
-
-
-
