@@ -6,7 +6,7 @@ let currentPlayer = 0;
 // Join game
 document.getElementById("joinBtn").addEventListener("click", () => {
   const name = document.getElementById("nameInput").value.trim();
-  if (name && players.length < 4) { // limit to 4 seats for now
+  if (name && players.length < 4) {
     players.push(name);
     chips.push(3);
     updateTable();
@@ -40,21 +40,19 @@ document.getElementById("rollBtn").addEventListener("click", () => {
 
   // Resolve Left/Right/Center immediately
   outcomes.forEach(outcome => {
-    if (chips[currentPlayer] > 0) {
-      if (outcome === "Left") {
-        chips[currentPlayer]--;
-        chips[(currentPlayer - 1 + players.length) % players.length]++;
-      } else if (outcome === "Right") {
-        chips[currentPlayer]--;
-        chips[(currentPlayer + 1) % players.length]++;
-      } else if (outcome === "Center") {
-        chips[currentPlayer]--;
-        centerPot++;
-      } else if (outcome === "Wild") {
-        wildRolled = true; // mark Wild, no chip reduction
-      }
-      // Dottt = keep chip
+    if (outcome === "Left" && chips[currentPlayer] > 0) {
+      chips[currentPlayer]--;
+      chips[(currentPlayer - 1 + players.length) % players.length]++;
+    } else if (outcome === "Right" && chips[currentPlayer] > 0) {
+      chips[currentPlayer]--;
+      chips[(currentPlayer + 1) % players.length]++;
+    } else if (outcome === "Center" && chips[currentPlayer] > 0) {
+      chips[currentPlayer]--;
+      centerPot++;
+    } else if (outcome === "Wild") {
+      wildRolled = true; // mark Wild, no chip reduction
     }
+    // Dottt = keep chip
   });
 
   updateTable();
@@ -121,25 +119,27 @@ function highlightCurrentPlayer() {
 function showStealOptions(rollerIndex) {
   const resultsDiv = document.getElementById("results");
   const opponents = players.map((p, i) => ({ name: p, index: i }))
-                           .filter(o => o.index !== rollerIndex);
+                           .filter(o => o.index !== rollerIndex && chips[o.index] > 0);
 
   const optionsDiv = document.createElement("div");
   optionsDiv.id = "stealOptions";
+
+  if (opponents.length === 0) {
+    resultsDiv.innerText += `\nNo opponents have chips to steal.`;
+    checkWinner();
+    nextTurn();
+    return;
+  }
 
   opponents.forEach(opponent => {
     const btn = document.createElement("button");
     btn.textContent = `Steal from ${opponent.name}`;
     btn.onclick = () => {
-      if (chips[opponent.index] > 0) {
-        chips[opponent.index]--;
-        chips[rollerIndex]++;
-        updateTable();
-        document.getElementById("results").innerText +=
-          `\n${players[rollerIndex]} stole a chip from ${opponent.name}!`;
-      } else {
-        document.getElementById("results").innerText +=
-          `\n${opponent.name} has no chips to steal.`;
-      }
+      chips[opponent.index]--;
+      chips[rollerIndex]++;
+      updateTable();
+      document.getElementById("results").innerText +=
+        `\n${players[rollerIndex]} stole a chip from ${opponent.name}!`;
       optionsDiv.remove();
       checkWinner();
       nextTurn();
@@ -149,4 +149,3 @@ function showStealOptions(rollerIndex) {
 
   resultsDiv.appendChild(optionsDiv);
 }
-
