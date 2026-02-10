@@ -34,6 +34,11 @@ section {
   width: 300px;
 }
 
+/* Make the Game Board section wider */
+#game {
+  width: 600px; /* doubled from 300px */
+}
+
 /* Chat box */
 #messages {
   height: 200px;
@@ -44,11 +49,11 @@ section {
   background: #fafafa;
 }
 
-/* Game table */
+/* Game table (circle board) */
 #table {
   position: relative;
-  width: 500px;   /* doubled size */
-  height: 500px;  /* doubled size */
+  width: 500px;   /* original size */
+  height: 500px;  /* original size */
   margin: auto;
   border-radius: 50%;
   background: radial-gradient(circle, #2e7d32 60%, #1b5e20 100%); /* green felt look */
@@ -61,13 +66,13 @@ section {
 /* Player seats */
 .player {
   position: absolute;
-  width: 160px; /* scaled up */
+  width: 140px; /* slightly larger for visibility */
   text-align: center;
   font-weight: bold;
   background: #fafafa;
   border: 4px solid #444;
   border-radius: 16px;
-  padding: 12px;
+  padding: 10px;
   box-shadow: 0 6px 12px rgba(0,0,0,0.4);
   transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
 }
@@ -78,27 +83,27 @@ section {
   transform: scale(1.15);
 }
 
-/* Player positions around the larger circle */
-#player0 { top: 60px; left: 50%; transform: translateX(-50%); }
-#player1 { right: 60px; top: 50%; transform: translateY(-50%); }
-#player2 { bottom: 60px; left: 50%; transform: translateX(-50%); }
-#player3 { left: 60px; top: 50%; transform: translateY(-50%); }
+/* Player positions around the circle */
+#player0 { top: 40px; left: 50%; transform: translateX(-50%); }
+#player1 { right: 40px; top: 50%; transform: translateY(-50%); }
+#player2 { bottom: 40px; left: 50%; transform: translateX(-50%); }
+#player3 { left: 40px; top: 50%; transform: translateY(-50%); }
 
 /* Center pot */
 #centerPot {
-  font-size: 28px; /* larger text */
+  font-size: 24px;
   font-weight: bold;
   background: radial-gradient(circle, gold 40%, orange 100%);
   border: 4px solid #444;
   border-radius: 50%;
-  padding: 30px; /* bigger circle */
+  padding: 25px;
   box-shadow: 0 6px 14px rgba(0,0,0,0.7);
 }
 
 /* Dice images */
 .die {
-  width: 80px;  /* larger dice */
-  height: 80px;
+  width: 70px;
+  height: 70px;
   margin: 8px;
   animation: roll 0.6s ease;
 }
@@ -125,6 +130,8 @@ button:hover {
   background: #666;
   transform: translateY(-2px);
 }
+
+
 
 
 
