@@ -135,12 +135,24 @@ section {
   padding: 6px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.4);
   transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .player.active {
   border-color: gold;
   box-shadow: 0 0 15px gold;
   transform: scale(1.1);
+}
+
+/* Avatar images inside player boxes */
+.player img.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;   /* makes them circular */
+  margin-bottom: 6px;   /* space between avatar and text */
+  object-fit: cover;    /* crops nicely if image isn’t square */
 }
 
 /* Player positions around the circle – pushed outward */
@@ -201,5 +213,9 @@ button:hover {
   section {
     width: 100%;       /* sections take full width */
   }
-}
 
+  .player img.avatar {
+    width: 50px;       /* slightly smaller avatars on mobile */
+    height: 50px;
+  }
+}
