@@ -47,6 +47,22 @@ document.getElementById("rollBtn").addEventListener("click", () => {
       } else if (outcome === "Center") {
         chips[currentPlayer]--;
         centerPot++;
+      } else if (outcome === "Wild") {
+        // Wild: steal one chip from another player
+        let targetIndex;
+        do {
+          targetIndex = Math.floor(Math.random() * players.length);
+        } while (targetIndex === currentPlayer);
+
+        if (chips[targetIndex] > 0) {
+          chips[targetIndex]--;
+          chips[currentPlayer]++;
+          document.getElementById("results").innerText +=
+            `\n${players[currentPlayer]} stole a chip from ${players[targetIndex]}!`;
+        } else {
+          document.getElementById("results").innerText +=
+            `\n${players[currentPlayer]} rolled Wild but ${players[targetIndex]} had no chips.`;
+        }
       }
       // Dottt means keep chip, no action
     }
@@ -58,7 +74,7 @@ document.getElementById("rollBtn").addEventListener("click", () => {
 });
 
 function rollDie() {
-  const sides = ["Left", "Right", "Center", "Dottt"];
+  const sides = ["Left", "Right", "Center", "Dottt", "Wild"];
   return sides[Math.floor(Math.random() * sides.length)];
 }
 
@@ -73,7 +89,6 @@ function updateTable() {
   players.forEach((p, i) => {
     const playerDiv = document.getElementById("player" + i);
     if (playerDiv) {
-      // ✅ Only update the name and chips fields
       const nameDiv = playerDiv.querySelector(".name");
       const chipsDiv = playerDiv.querySelector(".chips");
       if (nameDiv) nameDiv.textContent = p;
