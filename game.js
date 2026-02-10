@@ -38,6 +38,7 @@ document.getElementById("rollBtn").addEventListener("click", () => {
 
   let wildRolled = false;
 
+  // Resolve Left/Right/Center immediately
   outcomes.forEach(outcome => {
     if (chips[currentPlayer] > 0) {
       if (outcome === "Left") {
@@ -50,7 +51,7 @@ document.getElementById("rollBtn").addEventListener("click", () => {
         chips[currentPlayer]--;
         centerPot++;
       } else if (outcome === "Wild") {
-        wildRolled = true; // flag Wild
+        wildRolled = true; // mark Wild, no chip reduction
       }
       // Dottt = keep chip
     }
@@ -148,3 +149,4 @@ function showStealOptions(rollerIndex) {
 
   resultsDiv.appendChild(optionsDiv);
 }
+
