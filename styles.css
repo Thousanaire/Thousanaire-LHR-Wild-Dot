@@ -103,8 +103,8 @@ section {
 /* Game table (circle board) */
 #table {
   position: relative;
-  width: 500px;   /* original circle size */
-  height: 500px;  /* original circle size */
+  width: 700px;   /* original circle size */
+  height: 700px;  /* original circle size */
   margin: 20px auto;
   border-radius: 50%;
   background: radial-gradient(circle, #2e7d32 60%, #1b5e20 100%);
@@ -181,5 +181,6 @@ button:hover {
   background: #666;
   transform: translateY(-2px);
 }
+
 
 
