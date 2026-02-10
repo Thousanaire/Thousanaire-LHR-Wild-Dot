@@ -65,11 +65,13 @@ header h1 {
 /* Main layout */
 main {
   display: flex;
+  flex-wrap: wrap;   /* allow sections to wrap on smaller screens */
   gap: 2rem;
   margin-top: 2rem;
+  justify-content: center;
 }
 
-/* Section cards (for chat, etc.) */
+/* Section cards (default for chat, etc.) */
 section {
   background: rgba(255,255,255,0.9);
   color: #222;
@@ -79,7 +81,7 @@ section {
   width: 300px;
 }
 
-/* Make the Game Board section bigger */
+/* Game Board section */
 #game {
   width: 1000px;       /* wider box */
   min-height: 700px;   /* taller box for breathing room */
@@ -90,7 +92,13 @@ section {
   padding: 1rem;
 }
 
-/* Chat box */
+/* Chat Box section – stack below game board */
+#chat {
+  width: 1000px;       /* match game board width */
+  margin-top: 1rem;    /* spacing below game board */
+}
+
+/* Chat messages area */
 #messages {
   height: 200px;
   overflow-y: auto;
@@ -103,8 +111,8 @@ section {
 /* Game table (circle board) */
 #table {
   position: relative;
-  width: 500px;   /* larger circle size */
-  height: 500px;  /* larger circle size */
+  width: 500px;   /* circle size */
+  height: 500px;  /* circle size */
   margin: 20px auto;
   border-radius: 50%;
   background: radial-gradient(circle, #2e7d32 60%, #1b5e20 100%);
@@ -183,5 +191,14 @@ button:hover {
   transform: translateY(-2px);
 }
 
+/* Responsive layout for mobile */
+@media (max-width: 768px) {
+  #game, #chat {
+    width: 100%;       /* full width on small screens */
+    min-height: auto;  /* let height adjust naturally */
+  }
 
-
+  section {
+    width: 100%;       /* sections take full width */
+  }
+}
