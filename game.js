@@ -32,9 +32,10 @@ document.getElementById("rollBtn").addEventListener("click", () => {
     outcomes.push(rollDie());
   }
 
-  // Show dice images
+  // Show dice images AND text outcomes
   document.getElementById("results").innerHTML =
-    players[currentPlayer] + " rolled: " + renderDice(outcomes);
+    players[currentPlayer] + " rolled: " + renderDice(outcomes) +
+    "<br>(" + outcomes.join(", ") + ")";
 
   let wildRolled = false;
 
@@ -58,8 +59,8 @@ document.getElementById("rollBtn").addEventListener("click", () => {
   updateTable();
 
   if (wildRolled) {
-    document.getElementById("results").innerText +=
-      `\n${players[currentPlayer]} rolled a Wild! Choose a player to steal from.`;
+    document.getElementById("results").innerHTML +=
+      `<br>${players[currentPlayer]} rolled a Wild! Choose a player to steal from.`;
     showStealOptions(currentPlayer);
   } else {
     checkWinner();
@@ -125,7 +126,7 @@ function showStealOptions(rollerIndex) {
   optionsDiv.id = "stealOptions";
 
   if (opponents.length === 0) {
-    resultsDiv.innerText += `\nNo opponents have chips to steal.`;
+    resultsDiv.innerHTML += `<br>No opponents have chips to steal.`;
     checkWinner();
     nextTurn();
     return;
@@ -138,8 +139,8 @@ function showStealOptions(rollerIndex) {
       chips[opponent.index]--;
       chips[rollerIndex]++;
       updateTable();
-      document.getElementById("results").innerText +=
-        `\n${players[rollerIndex]} stole a chip from ${opponent.name}!`;
+      document.getElementById("results").innerHTML +=
+        `<br>${players[rollerIndex]} stole a chip from ${opponent.name}!`;
       optionsDiv.remove();
       checkWinner();
       nextTurn();
