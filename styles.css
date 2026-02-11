@@ -166,4 +166,6 @@ button:hover {
 /* Roll history */
 #rollHistory {
   flex: 1;
-  background: #222
+  background: #222;
+  color: #eee;
+  border-radius:
