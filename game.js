@@ -9,7 +9,7 @@ document.getElementById("joinBtn").addEventListener("click", () => {
   if (name && players.length < 4) {
     players.push(name);
     chips.push(3);
-    updateTable();
+    updatePlayerList();
     document.getElementById("nameInput").value = "";
     highlightCurrentPlayer();
   }
@@ -21,7 +21,7 @@ document.getElementById("rollBtn").addEventListener("click", () => {
 
   let numDice = Math.min(chips[currentPlayer], 3);
   if (numDice === 0) {
-    document.getElementById("results").innerText =
+    document.getElementById("result").innerText =
       players[currentPlayer] + " has no chips, skips turn.";
     nextTurn();
     return;
@@ -33,7 +33,8 @@ document.getElementById("rollBtn").addEventListener("click", () => {
   }
 
   // Show dice images AND text outcomes
-  document.getElementById("results").innerHTML =
+  document.getElementById("dieDisplay").src = `assets/dice/${outcomes[0]}.png`;
+  document.getElementById("result").innerHTML =
     players[currentPlayer] + " rolled: " + renderDice(outcomes) +
     "<br>(" + outcomes.join(", ") + ")";
 
@@ -51,21 +52,24 @@ document.getElementById("rollBtn").addEventListener("click", () => {
       chips[currentPlayer]--;
       centerPot++;
     } else if (outcome === "Wild") {
-      wildRolled = true; // mark Wild, no chip reduction
+      wildRolled = true;
     }
     // Dottt = keep chip
   });
 
-  updateTable();
+  updatePlayerList();
 
   if (wildRolled) {
-    document.getElementById("results").innerHTML +=
+    document.getElementById("result").innerHTML +=
       `<br>${players[currentPlayer]} rolled a Wild! Choose a player to steal from.`;
     showStealOptions(currentPlayer);
   } else {
     checkWinner();
     nextTurn();
   }
+
+  // Add to roll history
+  addHistory(players[currentPlayer], outcomes);
 });
 
 function rollDie() {
@@ -80,45 +84,52 @@ function renderDice(outcomes) {
   ).join(" ");
 }
 
-function updateTable() {
+// Update player list panel
+function updatePlayerList() {
+  const list = document.getElementById("playerList");
+  list.innerHTML = "";
   players.forEach((p, i) => {
-    const playerDiv = document.getElementById("player" + i);
-    if (playerDiv) {
-      const nameDiv = playerDiv.querySelector(".name");
-      const chipsDiv = playerDiv.querySelector(".chips");
-      if (nameDiv) nameDiv.textContent = p;
-      if (chipsDiv) chipsDiv.textContent = `Chips: ${chips[i]}`;
-    }
+    const div = document.createElement("div");
+    div.className = "player" + (i === currentPlayer ? " active" : "");
+    div.innerHTML = `
+      <div class="name">${p}</div>
+      <div class="chips">Chips: ${chips[i]}</div>
+    `;
+    list.appendChild(div);
   });
-  document.getElementById("centerPot").innerText = `Center Pot: ${centerPot}`;
+  document.getElementById("currentTurn").innerText = `Current turn: ${players[currentPlayer]}`;
 }
 
+// Next turn
 function nextTurn() {
   currentPlayer = (currentPlayer + 1) % players.length;
   highlightCurrentPlayer();
 }
 
+// Winner check
 function checkWinner() {
   let activePlayers = chips.filter(c => c > 0).length;
   if (activePlayers === 1) {
     let winnerIndex = chips.findIndex(c => c > 0);
-    document.getElementById("results").innerText =
+    document.getElementById("result").innerText =
       players[winnerIndex] + " wins the pot of " + centerPot + "!";
     document.getElementById("rollBtn").disabled = true;
     highlightCurrentPlayer();
   }
 }
 
-// Highlight current player’s seat
+// Highlight current player in list
 function highlightCurrentPlayer() {
-  document.querySelectorAll('.player').forEach((el, i) => {
-    el.classList.toggle('active', i === currentPlayer);
+  const list = document.querySelectorAll("#playerList .player");
+  list.forEach((el, i) => {
+    el.classList.toggle("active", i === currentPlayer);
   });
+  document.getElementById("currentTurn").innerText = `Current turn: ${players[currentPlayer]}`;
 }
 
 // Show steal options when Wild is rolled
 function showStealOptions(rollerIndex) {
-  const resultsDiv = document.getElementById("results");
+  const resultsDiv = document.getElementById("result");
   const opponents = players.map((p, i) => ({ name: p, index: i }))
                            .filter(o => o.index !== rollerIndex && chips[o.index] > 0);
 
@@ -138,8 +149,8 @@ function showStealOptions(rollerIndex) {
     btn.onclick = () => {
       chips[opponent.index]--;
       chips[rollerIndex]++;
-      updateTable();
-      document.getElementById("results").innerHTML +=
+      updatePlayerList();
+      document.getElementById("result").innerHTML +=
         `<br>${players[rollerIndex]} stole a chip from ${opponent.name}!`;
       optionsDiv.remove();
       checkWinner();
@@ -149,4 +160,13 @@ function showStealOptions(rollerIndex) {
   });
 
   resultsDiv.appendChild(optionsDiv);
+}
+
+// Add roll history
+function addHistory(player, outcomes) {
+  const historyDiv = document.getElementById("messages");
+  const entry = document.createElement("div");
+  const time = new Date().toLocaleTimeString();
+  entry.textContent = `${player}: ${outcomes.join(", ")} at ${time}`;
+  historyDiv.prepend(entry);
 }
