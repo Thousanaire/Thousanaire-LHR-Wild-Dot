@@ -168,4 +168,54 @@ button:hover {
   flex: 1;
   background: #222;
   color: #eee;
-  border-radius:
+  border-radius: 8px;
+  padding: 0.8rem;
+  overflow-y: auto;
+  height: 220px;
+  box-sizing: border-box;
+}
+
+/* Chat Box */
+#chat {
+  width: 100%;
+  margin-top: 1rem;
+  background: #1e1e1e;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+
+#chatMessages {
+  height: 200px;           /* fixed height */
+  overflow-y: auto;        /* vertical scrollbar */
+  background: #222;
+  color: #eee;
+  border-radius: 8px;
+  padding: 0.8rem;
+  margin-bottom: 0.5rem;
+  box-sizing: border-box;  /* prevents expansion from padding */
+}
+
+.chat-input {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#chatInput {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #222;
+  color: #fff;
+  margin-right: 0.5rem;
+}
+
+#sendBtn {
+  background: linear-gradient(135deg, #ff4081, #7c4dff);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
