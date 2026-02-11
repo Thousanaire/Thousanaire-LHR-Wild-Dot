@@ -75,6 +75,7 @@ document.getElementById("rollBtn").addEventListener("click", () => {
 });
 
 function rollDie() {
+  // Must match your actual dice file names
   const sides = ["Left", "Right", "Center", "Dottt", "Wild"];
   return sides[Math.floor(Math.random() * sides.length)];
 }
