@@ -165,7 +165,7 @@ button:hover {
 
 /* Roll history */
 #rollHistory {
-  flex: 1;
+  flex: none;
   background: #222;
   color: #eee;
   border-radius: 8px;
@@ -183,17 +183,21 @@ button:hover {
   border-radius: 12px;
   padding: 1rem;
   box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+
+  /* prevent flex growth */
+  flex: none;
 }
 
 #chatMessages {
   height: 200px;           /* fixed height */
+  max-height: 200px;       /* lock height */
   overflow-y: auto;        /* vertical scrollbar */
   background: #222;
   color: #eee;
   border-radius: 8px;
   padding: 0.8rem;
   margin-bottom: 0.5rem;
-  box-sizing: border-box;  /* prevents expansion from padding */
+  box-sizing: border-box;  /* padding stays inside height */
 }
 
 .chat-input {
