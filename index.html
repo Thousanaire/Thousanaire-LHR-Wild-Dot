@@ -20,31 +20,39 @@
     <section id="game">
       <h2>Game Board</h2>
       <div id="table">
-        <!-- Top players -->
-        <div class="player" id="player0">
+        <!-- Top player -->
+        <div class="player top" id="player0">
           <img src="assets/avatar/AvatarOne.png" class="avatar" alt="Player 0 Avatar">
           <div class="name"></div>
           <div class="chips">Chips: 3</div>
         </div>
-        <div class="player" id="player1">
+
+        <!-- Left player -->
+        <div class="player left" id="player1">
           <img src="assets/avatar/AvatarTwo.png" class="avatar" alt="Player 1 Avatar">
           <div class="name"></div>
           <div class="chips">Chips: 3</div>
         </div>
 
-        <!-- Center dice + pot -->
+        <!-- Center area with dice + pot -->
         <div id="centerArea">
-          <img src="assets/dice/die1.png" alt="Die" class="die" id="dieDisplay">
+          <div id="diceArea">
+            <img src="assets/dice/die1.png" class="die" id="die1" alt="Die 1">
+            <img src="assets/dice/die2.png" class="die" id="die2" alt="Die 2">
+            <img src="assets/dice/die3.png" class="die" id="die3" alt="Die 3">
+          </div>
           <div id="centerPot">Center Pot: 0</div>
         </div>
 
-        <!-- Bottom players -->
-        <div class="player" id="player2">
+        <!-- Right player -->
+        <div class="player right" id="player2">
           <img src="assets/avatar/Avatar3.png" class="avatar" alt="Player 2 Avatar">
           <div class="name"></div>
           <div class="chips">Chips: 3</div>
         </div>
-        <div class="player" id="player3">
+
+        <!-- Bottom player -->
+        <div class="player bottom" id="player3">
           <img src="assets/avatar/AvatarFour.png" class="avatar" alt="Player 3 Avatar">
           <div class="name"></div>
           <div class="chips">Chips: 3</div>
