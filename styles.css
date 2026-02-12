@@ -247,42 +247,22 @@ main {
   box-shadow: 0 4px 12px rgba(0,0,0,0.6);
   box-sizing: border-box;
   min-height: 80px;
+  font-size: 12px; /* smaller font */
+  overflow: hidden; /* prevents resizing */
 }
 
-/* ⭐ NEW Wild Steal Notification Bubble ⭐ */
+/* Wild Steal Notification Bubble */
 .wild-bubble {
   background: linear-gradient(135deg, #ff4081, #7c4dff);
-  padding: 0.6rem 1rem;
+  padding: 0.5rem 0.8rem;
   border-radius: 10px;
   color: #fff;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 12px;
   margin-bottom: 0.5rem;
   text-align: center;
   box-shadow: 0 4px 12px rgba(255,64,129,0.6);
-}
-
-#wildContent h3 {
-  margin-top: 0;
-  margin-bottom: 0.5rem;
-}
-
-#wildContent button {
-  margin: 4px;
-  padding: 6px 12px;
-  border-radius: 6px;
-  background: linear-gradient(135deg, #ff4081, #7c4dff);
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 14px;
-  transition: 0.2s ease;
-}
-
-#wildContent button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 10px rgba(255,64,129,0.7);
+  width: 100%;
 }
 
 /* Roll History Panel */
@@ -295,6 +275,7 @@ main {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  font-size: 12px; /* smaller */
 }
 
 #rollHistory {
@@ -307,9 +288,10 @@ main {
   max-height: 180px;
   margin-top: 0.5rem;
   border: 1px solid #333;
+  font-size: 12px; /* smaller */
 }
 
-/* ⭐ UPDATED CHAT BOX — SAME SIZE AS ROLL HISTORY ⭐ */
+/* Chat Box — SAME SIZE AS ROLL HISTORY */
 #chat {
   width: 100%;
   margin-top: 1rem;
@@ -319,9 +301,10 @@ main {
   box-shadow: 0 4px 12px rgba(0,0,0,0.6);
   box-sizing: border-box;
   height: 180px;        /* MATCH roll history */
-  max-height: 180px;    /* MATCH roll history */
+  max-height: 180px;
   display: flex;
   flex-direction: column;
+  font-size: 12px; /* smaller */
 }
 
 #chatMessages {
@@ -332,6 +315,7 @@ main {
   border-radius: 8px;
   padding: 0.8rem;
   margin-bottom: 0.5rem;
+  font-size: 12px;
 }
 
 .chat-input {
@@ -348,6 +332,7 @@ main {
   background: #222;
   color: #fff;
   margin-right: 0.5rem;
+  font-size: 12px;
 }
 
 #sendBtn {
@@ -356,6 +341,7 @@ main {
   border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
+  font-size: 12px;
 }
 
 /* Flying chip animation */
