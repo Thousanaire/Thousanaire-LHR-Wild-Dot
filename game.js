@@ -53,20 +53,21 @@ document.getElementById("rollBtn").addEventListener("click", () => {
     if (outcome === "Left" && chips[currentPlayer] > 0) {
       chips[currentPlayer]--;
       chips[(currentPlayer - 1 + players.length) % players.length]++;
+      updatePlayerList();
       addHistory(players[currentPlayer], [`Left → passed chip left`]);
     } else if (outcome === "Right" && chips[currentPlayer] > 0) {
       chips[currentPlayer]--;
       chips[(currentPlayer + 1) % players.length]++;
+      updatePlayerList();
       addHistory(players[currentPlayer], [`Right → passed chip right`]);
     } else if (outcome === "Center" && chips[currentPlayer] > 0) {
       chips[currentPlayer]--;
       centerPot++;
+      updatePlayerList();
       addHistory(players[currentPlayer], [`Center → chip to pot`]);
     }
     // Dottt = keep chip
   });
-
-  updatePlayerList();
 
   if (wildCount > 0) {
     document.getElementById("result").innerHTML +=
