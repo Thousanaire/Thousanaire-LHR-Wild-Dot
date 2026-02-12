@@ -1,25 +1,34 @@
-let players = [];          
+let players = [];          // logical seats: 0=TOP,1=RIGHT,2=BOTTOM,3=LEFT
 let chips = [0, 0, 0, 0];
 let centerPot = 0;
 let currentPlayer = 0;
 let idleDiceInterval;
 
-// LOGICAL SEAT ORDER (clockwise)
-// 0 = TOP, 1 = RIGHT, 2 = BOTTOM, 3 = LEFT
-// DOM SEAT ORDER (your HTML layout):
-// player0 = TOP
-// player1 = LEFT
-// player2 = BOTTOM
-// player3 = RIGHT
-const domSeatForLogical = [0, 1, 3, 2];
+// logical seat order (clockwise)
+const logicalPositions = ["top", "right", "bottom", "left"];
+// domSeatForLogical[i] = DOM index of the player div for logical seat i
+let domSeatForLogical = [0, 1, 2, 3];
+
+// Build mapping from logical seats -> DOM seats based on .top/.right/.bottom/.left
+function initSeatMapping() {
+  const playerDivs = document.querySelectorAll(".player");
+  logicalPositions.forEach((pos, logicalIndex) => {
+    playerDivs.forEach((div, domIndex) => {
+      if (div.classList.contains(pos)) {
+        domSeatForLogical[logicalIndex] = domIndex;
+      }
+    });
+  });
+}
 
 // Join game: players sit CLOCKWISE by join order
+// 1st -> TOP, 2nd -> RIGHT, 3rd -> BOTTOM, 4th -> LEFT
 document.getElementById("joinBtn").addEventListener("click", () => {
   const name = document.getElementById("nameInput").value.trim();
   if (!name) return;
   if (players.length >= 4) return;
 
-  const logicalSeat = players.length; // 0,1,2,3 clockwise
+  const logicalSeat = players.length; // 0,1,2,3 in clockwise order
   players[logicalSeat] = name;
   chips[logicalSeat] = 3;
 
@@ -68,17 +77,14 @@ document.getElementById("rollBtn").addEventListener("click", () => {
       const leftSeat = getLeftSeatIndex(currentPlayer);
       chips[currentPlayer]--;
       chips[leftSeat]++;
-    }
-    else if (outcome === "Right" && chips[currentPlayer] > 0) {
+    } else if (outcome === "Right" && chips[currentPlayer] > 0) {
       const rightSeat = getRightSeatIndex(currentPlayer);
       chips[currentPlayer]--;
       chips[rightSeat]++;
-    }
-    else if (outcome === "Center" && chips[currentPlayer] > 0) {
+    } else if (outcome === "Center" && chips[currentPlayer] > 0) {
       chips[currentPlayer]--;
       centerPot++;
-    }
-    else if (outcome === "Wild") {
+    } else if (outcome === "Wild") {
       wildRolled = true;
     }
   });
@@ -101,6 +107,7 @@ function rollDie() {
   return sides[Math.floor(Math.random() * sides.length)];
 }
 
+// Animate dice with CSS spin effect
 function animateDice(outcomes) {
   const diceArea = document.getElementById("diceArea");
   diceArea.innerHTML = renderDice(outcomes);
@@ -115,6 +122,7 @@ function animateDice(outcomes) {
   });
 }
 
+// Render dice images
 function renderDice(outcomes) {
   return outcomes.map(o =>
     `<img src="assets/dice/${o}.png" alt="${o}" class="die">`
@@ -162,11 +170,14 @@ function checkWinner() {
 function highlightCurrentPlayer() {
   document.querySelectorAll('.player').forEach(el => el.classList.remove('active'));
 
+  if (players.length === 0) return;
+
   const domIndex = domSeatForLogical[currentPlayer];
   const activeDiv = document.getElementById("player" + domIndex);
   if (activeDiv) activeDiv.classList.add('active');
 }
 
+// Show steal options when Wild is rolled
 function showStealOptions(rollerIndex) {
   const resultsDiv = document.getElementById("results");
   const opponents = players.map((p, i) => ({ name: p, index: i }))
@@ -201,6 +212,7 @@ function showStealOptions(rollerIndex) {
   resultsDiv.appendChild(optionsDiv);
 }
 
+// Add roll history
 function addHistory(player, outcomes) {
   const historyDiv = document.getElementById("rollHistory");
   const entry = document.createElement("div");
@@ -209,7 +221,7 @@ function addHistory(player, outcomes) {
   historyDiv.prepend(entry);
 }
 
-// Idle dice shuffle
+// Show random dice faces at startup and refresh every 2s until game starts
 function showRandomDice() {
   const diceArea = document.getElementById("diceArea");
   let randomFaces = [];
@@ -224,11 +236,7 @@ function showRandomDice() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  initSeatMapping();      // build mapping from .top/.right/.bottom/.left
   showRandomDice();
   idleDiceInterval = setInterval(showRandomDice, 2000);
 });
-
-
-
-
-
