@@ -111,6 +111,13 @@ main {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  transition: 0.2s ease;
+}
+
+.player.active {
+  box-shadow: 0 0 15px rgba(255,64,129,0.8);
+  border-radius: 12px;
+  transform: scale(1.08);
 }
 
 .avatar {
@@ -181,6 +188,11 @@ main {
   display: flex;
   gap: 1rem;
   justify-content: center;
+}
+
+#rollBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* RIGHT SIDE PANEL (History + Chat) */
@@ -283,10 +295,16 @@ main {
   align-items: center;
   justify-content: center;
   z-index: 999;
+  animation: fadeIn 0.25s ease-out;
 }
 
 .modal.hidden {
   display: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .modal-content {
@@ -296,6 +314,12 @@ main {
   box-shadow: 0 0 12px rgba(255,64,129,0.6);
   text-align: center;
   width: 320px;
+  animation: popIn 0.25s ease-out;
+}
+
+@keyframes popIn {
+  from { transform: scale(0.85); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
 }
 
 .modal-content button {
@@ -307,4 +331,21 @@ main {
   border: none;
   cursor: pointer;
   font-weight: bold;
+  transition: 0.2s ease;
+}
+
+.modal-content button:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 10px rgba(255,64,129,0.7);
+}
+
+/* Optional chip steal animation hook */
+@keyframes stealPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.chip-steal {
+  animation: stealPulse 0.4s ease;
 }
