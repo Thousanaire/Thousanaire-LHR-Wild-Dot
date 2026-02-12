@@ -11,7 +11,7 @@ let idleDiceInterval;
 // player1 = LEFT
 // player2 = BOTTOM
 // player3 = RIGHT
-const domSeatForLogical = [0, 3, 2, 1];
+const domSeatForLogical = [0, 1, 2, 3];
 
 // Join game: players sit CLOCKWISE by join order
 document.getElementById("joinBtn").addEventListener("click", () => {
@@ -227,3 +227,4 @@ document.addEventListener("DOMContentLoaded", () => {
   showRandomDice();
   idleDiceInterval = setInterval(showRandomDice, 2000);
 });
+
