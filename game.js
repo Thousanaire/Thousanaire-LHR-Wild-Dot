@@ -24,7 +24,6 @@ function initSeatMapping() {
 }
 
 // Join game: players sit CLOCKWISE by join order
-// 1st -> TOP, 2nd -> RIGHT, 3rd -> BOTTOM, 4th -> LEFT
 document.getElementById("joinBtn").addEventListener("click", () => {
   const name = document.getElementById("nameInput").value.trim();
   if (!name) return;
@@ -72,7 +71,7 @@ document.getElementById("rollBtn").addEventListener("click", () => {
 
   animateDice(outcomes);
 
-  let wildRolled = false;
+  let wildCount = 0;
 
   outcomes.forEach(outcome => {
     if (outcome === "Left" && chips[currentPlayer] > 0) {
@@ -90,17 +89,15 @@ document.getElementById("rollBtn").addEventListener("click", () => {
       centerPot++;
     }
     else if (outcome === "Wild") {
-      wildRolled = true;
+      wildCount++;
     }
   });
 
   updateTable();
   addHistory(players[currentPlayer], outcomes);
 
-  if (wildRolled) {
-    document.getElementById("results").innerHTML =
-      `${players[currentPlayer]} rolled a Wild! Choose a player to steal from.`;
-    showStealOptions(currentPlayer);
+  if (wildCount > 0) {
+    handleWildSteals(currentPlayer, wildCount);
   } else {
     checkWinner();
     nextTurn();
@@ -154,9 +151,17 @@ function updateTable() {
   document.getElementById("centerPot").innerText = `Center Pot: ${centerPot}`;
 }
 
+// FIXED TURN ROTATION — no skipping, no repeats
 function nextTurn() {
   if (players.length === 0) return;
-  currentPlayer = (currentPlayer + 1) % players.length;
+
+  let next = currentPlayer;
+
+  do {
+    next = (next + 1) % 4;
+  } while (!players[next]); // skip empty seats
+
+  currentPlayer = next;
   highlightCurrentPlayer();
 }
 
@@ -182,38 +187,56 @@ function highlightCurrentPlayer() {
   if (activeDiv) activeDiv.classList.add('active');
 }
 
-// Show steal options when Wild is rolled
-function showStealOptions(rollerIndex) {
+// MULTI-WILD STEAL LOGIC
+function handleWildSteals(rollerIndex, wildCount) {
   const resultsDiv = document.getElementById("results");
-  const opponents = players.map((p, i) => ({ name: p, index: i }))
-                           .filter(o => o.index !== rollerIndex && chips[o.index] > 0 && o.name);
+  resultsDiv.innerHTML += `<br>${players[rollerIndex]} has ${wildCount} steal(s).`;
+
+  let stealsRemaining = wildCount;
 
   const optionsDiv = document.createElement("div");
   optionsDiv.id = "stealOptions";
 
-  if (opponents.length === 0) {
-    resultsDiv.innerHTML += `<br>No opponents have chips to steal.`;
-    checkWinner();
-    nextTurn();
-    return;
-  }
+  function renderButtons() {
+    optionsDiv.innerHTML = "";
 
-  opponents.forEach(opponent => {
-    const btn = document.createElement("button");
-    btn.textContent = `Steal from ${opponent.name}`;
-    btn.onclick = () => {
-      chips[opponent.index]--;
-      chips[rollerIndex]++;
-      updateTable();
-      document.getElementById("results").innerHTML +=
-        `<br>${players[rollerIndex]} stole a chip from ${opponent.name}!`;
+    const opponents = players
+      .map((p, i) => ({ name: p, index: i }))
+      .filter(o => o.index !== rollerIndex && chips[o.index] > 0);
+
+    if (opponents.length === 0) {
+      resultsDiv.innerHTML += `<br>No opponents have chips to steal.`;
       optionsDiv.remove();
       checkWinner();
       nextTurn();
-    };
-    optionsDiv.appendChild(btn);
-  });
+      return;
+    }
 
+    opponents.forEach(opponent => {
+      const btn = document.createElement("button");
+      btn.textContent = `Steal from ${opponent.name}`;
+      btn.onclick = () => {
+        chips[opponent.index]--;
+        chips[rollerIndex]++;
+        stealsRemaining--;
+
+        updateTable();
+        resultsDiv.innerHTML += `<br>${players[rollerIndex]} stole a chip from ${opponent.name}!`;
+
+        if (stealsRemaining === 0) {
+          optionsDiv.remove();
+          checkWinner();
+          nextTurn();
+        } else {
+          resultsDiv.innerHTML += `<br>${stealsRemaining} steal(s) remaining...`;
+          renderButtons();
+        }
+      };
+      optionsDiv.appendChild(btn);
+    });
+  }
+
+  renderButtons();
   resultsDiv.appendChild(optionsDiv);
 }
 
@@ -241,7 +264,7 @@ function showRandomDice() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  initSeatMapping();      // build mapping from .top/.right/.bottom/.left
+  initSeatMapping();
   showRandomDice();
   idleDiceInterval = setInterval(showRandomDice, 2000);
 });
