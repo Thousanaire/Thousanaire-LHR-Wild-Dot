@@ -187,57 +187,56 @@ function highlightCurrentPlayer() {
   if (activeDiv) activeDiv.classList.add('active');
 }
 
-// MULTI-WILD STEAL LOGIC
+/*  
+===========================================
+⭐ CLEAN MODAL WILD STEAL LOGIC (Option C)
+===========================================
+*/
 function handleWildSteals(rollerIndex, wildCount) {
-  const resultsDiv = document.getElementById("results");
-  resultsDiv.innerHTML += `<br>${players[rollerIndex]} has ${wildCount} steal(s).`;
+  const modal = document.getElementById("wildModal");
+  const content = document.getElementById("wildContent");
 
-  let stealsRemaining = wildCount;
+  modal.classList.remove("hidden");
 
-  const optionsDiv = document.createElement("div");
-  optionsDiv.id = "stealOptions";
+  content.innerHTML = `<h3>${players[rollerIndex]} has ${wildCount} steal(s)</h3>`;
 
-  function renderButtons() {
-    optionsDiv.innerHTML = "";
+  const opponents = players
+    .map((p, i) => ({ name: p, index: i }))
+    .filter(o => o.index !== rollerIndex && chips[o.index] > 0);
 
-    const opponents = players
-      .map((p, i) => ({ name: p, index: i }))
-      .filter(o => o.index !== rollerIndex && chips[o.index] > 0);
-
-    if (opponents.length === 0) {
-      resultsDiv.innerHTML += `<br>No opponents have chips to steal.`;
-      optionsDiv.remove();
+  if (opponents.length === 0) {
+    content.innerHTML += `<p>No opponents have chips to steal.</p>`;
+    setTimeout(() => {
+      modal.classList.add("hidden");
       checkWinner();
       nextTurn();
-      return;
-    }
-
-    opponents.forEach(opponent => {
-      const btn = document.createElement("button");
-      btn.textContent = `Steal from ${opponent.name}`;
-      btn.onclick = () => {
-        chips[opponent.index]--;
-        chips[rollerIndex]++;
-        stealsRemaining--;
-
-        updateTable();
-        resultsDiv.innerHTML += `<br>${players[rollerIndex]} stole a chip from ${opponent.name}!`;
-
-        if (stealsRemaining === 0) {
-          optionsDiv.remove();
-          checkWinner();
-          nextTurn();
-        } else {
-          resultsDiv.innerHTML += `<br>${stealsRemaining} steal(s) remaining...`;
-          renderButtons();
-        }
-      };
-      optionsDiv.appendChild(btn);
-    });
+    }, 1200);
+    return;
   }
 
-  renderButtons();
-  resultsDiv.appendChild(optionsDiv);
+  opponents.forEach(opponent => {
+    const btn = document.createElement("button");
+    btn.textContent = `Steal from ${opponent.name}`;
+    btn.onclick = () => {
+      // Perform all steals instantly
+      for (let i = 0; i < wildCount; i++) {
+        if (chips[opponent.index] > 0) {
+          chips[opponent.index]--;
+          chips[rollerIndex]++;
+        }
+      }
+
+      updateTable();
+
+      // Close modal immediately
+      modal.classList.add("hidden");
+
+      checkWinner();
+      nextTurn();
+    };
+
+    content.appendChild(btn);
+  });
 }
 
 // Add roll history
