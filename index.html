@@ -2,95 +2,138 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Thousanaire: Left Right Center Dot</title>
+  <title>Thousanaire LRC Dot Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="theme-gold">
+
+<body>
   <header>
     <h1>Thousanaire: Left Right Center Dot</h1>
+
     <div id="joinGame">
-      <input id="nameInput" placeholder="Enter your name">
-      <select id="avatarSelect">
-        <option value="avatar1">Avatar 1</option>
-        <option value="avatar2">Avatar 2</option>
-        <option value="avatar3">Avatar 3</option>
-        <option value="avatar4" selected>Avatar 4</option>
+      <input type="text" id="nameInput" placeholder="Enter your name" aria-label="Enter your name">
+
+      <select id="avatarSelect" aria-label="Choose avatar">
+        <option value="assets/avatar/AvatarOne.png">Avatar 1</option>
+        <option value="assets/avatar/AvatarTwo.png">Avatar 2</option>
+        <option value="assets/avatar/Avatar3.png">Avatar 3</option>
+        <option value="assets/avatar/AvatarFour.png">Avatar 4</option>
       </select>
-      <select id="colorSelect">
-        <option value="gold" selected>Gold</option>
-        <option value="red">Red</option>
-        <option value="blue">Blue</option>
-        <option value="green">Green</option>
+
+      <select id="colorSelect" aria-label="Choose color">
+        <option value="#ff4081">Pink</option>
+        <option value="#7c4dff">Purple</option>
+        <option value="#00e5ff">Cyan</option>
+        <option value="#ffeb3b">Gold</option>
       </select>
+
       <button id="joinBtn">Join Game</button>
     </div>
   </header>
 
   <main>
+    <!-- GAME BOARD -->
     <section id="game">
+      <h2>Game Board</h2>
+
       <div id="table">
-        <div class="player top" data-player-id="0">
-          <img class="avatar" src="https://via.placeholder.com/80" alt="">
-          <div class="name">Thousanaire</div>
-          <div class="chips">Chips: <span class="chip-count">3</span></div>
+        <!-- TOP PLAYER -->
+        <div class="player top" id="player0">
+          <img src="assets/avatar/AvatarOne.png" class="avatar" alt="Player 0 Avatar">
+          <div class="name"></div>
+          <div class="chips"></div>
         </div>
-        <div class="player left" data-player-id="1">
-          <img class="avatar" src="https://via.placeholder.com/80" alt="">
-          <div class="name">A</div>
-          <div class="chips">Chips: <span class="chip-count">3</span></div>
+
+        <!-- LEFT PLAYER -->
+        <div class="player left" id="player1">
+          <img src="assets/avatar/AvatarTwo.png" class="avatar" alt="Player 1 Avatar">
+          <div class="name"></div>
+          <div class="chips"></div>
         </div>
+
+        <!-- CENTER AREA -->
         <div id="centerArea">
           <div id="diceArea">
-            <div class="die" id="die1">•</div>
-            <div class="die" id="die2">•</div>
-            <div class="die" id="die3">•</div>
+            <img src="assets/dice/die1.png" class="die" id="die1" alt="Die 1">
+            <img src="assets/dice/die2.png" class="die" id="die2" alt="Die 2">
+            <img src="assets/dice/die3.png" class="die" id="die3" alt="Die 3">
           </div>
-          <div id="centerPot">Center Pot: <span id="centerPotCount">0</span></div>
-          <div id="turnIndicator">Current turn: <span id="currentPlayerName">Thousanaire</span></div>
+
+          <div id="centerPot">Center Pot: 0</div>
         </div>
-        <div class="player right" data-player-id="2">
-          <img class="avatar" src="https://via.placeholder.com/80" alt="">
-          <div class="name">B</div>
-          <div class="chips">Chips: <span class="chip-count">3</span></div>
+
+        <!-- RIGHT PLAYER -->
+        <div class="player right" id="player2">
+          <img src="assets/avatar/Avatar3.png" class="avatar" alt="Player 2 Avatar">
+          <div class="name"></div>
+          <div class="chips"></div>
         </div>
-        <div class="player bottom" data-player-id="3">
-          <img class="avatar" src="https://via.placeholder.com/80" alt="">
-          <div class="name">C</div>
-          <div class="chips">Chips: <span class="chip-count">3</span></div>
+
+        <!-- BOTTOM PLAYER -->
+        <div class="player bottom" id="player3">
+          <img src="assets/avatar/AvatarFour.png" class="avatar" alt="Player 3 Avatar">
+          <div class="name"></div>
+          <div class="chips"></div>
         </div>
       </div>
 
+      <!-- CONTROLS -->
       <div class="controls">
         <button id="rollBtn">Roll Dice</button>
         <button id="resetBtn">Reset Game</button>
       </div>
+
+      <div id="results"></div>
+      <div id="currentTurn">Current turn: -</div>
     </section>
 
+    <!-- RIGHT COLUMN: WILD PANEL ABOVE HISTORY -->
     <section id="rightColumn">
+
+      <!-- WILD STEAL PANEL -->
       <section id="wildPanel">
-        <div id="wildContent">
-          <h3>Wild Steals</h3>
-          <div id="wildStatus">No wilds available.</div>
-          <div id="wildButtons"></div>
-        </div>
+        <h2>Wild Steals</h2>
+        <div id="wildContent"></div>
       </section>
 
+      <!-- ROLL HISTORY -->
       <section id="history">
-        <h3>Roll History</h3>
+        <h2>Roll History</h2>
         <div id="rollHistory"></div>
       </section>
 
-      <section id="chat">
-        <h3>Chat Box</h3>
-        <div id="chatMessages"></div>
-        <div class="chat-input">
-          <input type="text" id="chatInput" placeholder="Type a message...">
-          <button id="sendBtn">Send</button>
-        </div>
-      </section>
     </section>
   </main>
 
+  <!-- CHAT AREA -->
+  <section id="chat">
+    <h2>Chat Box</h2>
+
+    <div id="chatMessages"></div>
+
+    <div class="chat-input">
+      <input type="text" id="chatInput" placeholder="Type a message..." aria-label="Chat input">
+      <button id="sendBtn">Send</button>
+    </div>
+  </section>
+
+  <!-- GAME OVER MODAL -->
+  <div id="gameOverOverlay" class="modal-overlay hidden">
+    <div class="modal">
+      <h2 id="gameOverTitle">Game Over</h2>
+      <p id="gameOverText"></p>
+      <button id="playAgainBtn">Play Again</button>
+    </div>
+  </div>
+
+  <!-- SOUND EFFECTS -->
+  <audio id="sndRoll" src="assets/sounds/roll.mp3" preload="auto"></audio>
+  <audio id="sndChip" src="assets/sounds/chip.mp3" preload="auto"></audio>
+  <audio id="sndWild" src="assets/sounds/wild.mp3" preload="auto"></audio>
+  <audio id="sndWin" src="assets/sounds/win.mp3" preload="auto"></audio>
+
   <script src="game.js"></script>
+  <script src="chat.js"></script>
 </body>
 </html>
