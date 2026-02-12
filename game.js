@@ -6,12 +6,14 @@ let idleDiceInterval;
 
 // logical seat order (clockwise)
 const logicalPositions = ["top", "right", "bottom", "left"];
+
 // domSeatForLogical[i] = DOM index of the player div for logical seat i
 let domSeatForLogical = [0, 1, 2, 3];
 
 // Build mapping from logical seats -> DOM seats based on .top/.right/.bottom/.left
 function initSeatMapping() {
   const playerDivs = document.querySelectorAll(".player");
+
   logicalPositions.forEach((pos, logicalIndex) => {
     playerDivs.forEach((div, domIndex) => {
       if (div.classList.contains(pos)) {
@@ -28,7 +30,7 @@ document.getElementById("joinBtn").addEventListener("click", () => {
   if (!name) return;
   if (players.length >= 4) return;
 
-  const logicalSeat = players.length; // 0,1,2,3 in clockwise order
+  const logicalSeat = players.length; // 0,1,2,3 clockwise
   players[logicalSeat] = name;
   chips[logicalSeat] = 3;
 
@@ -77,14 +79,17 @@ document.getElementById("rollBtn").addEventListener("click", () => {
       const leftSeat = getLeftSeatIndex(currentPlayer);
       chips[currentPlayer]--;
       chips[leftSeat]++;
-    } else if (outcome === "Right" && chips[currentPlayer] > 0) {
+    }
+    else if (outcome === "Right" && chips[currentPlayer] > 0) {
       const rightSeat = getRightSeatIndex(currentPlayer);
       chips[currentPlayer]--;
       chips[rightSeat]++;
-    } else if (outcome === "Center" && chips[currentPlayer] > 0) {
+    }
+    else if (outcome === "Center" && chips[currentPlayer] > 0) {
       chips[currentPlayer]--;
       centerPot++;
-    } else if (outcome === "Wild") {
+    }
+    else if (outcome === "Wild") {
       wildRolled = true;
     }
   });
