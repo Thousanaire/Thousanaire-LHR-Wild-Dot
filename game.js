@@ -2,25 +2,52 @@ let players = [];
 let chips = [];
 let centerPot = 0;
 let currentPlayer = 0;
-let idleDiceInterval; // for random dice cycling
+let idleDiceInterval;
 
-// Join game
+// FIXED SEAT ORDER (clockwise)
+// 0 = TOP, 1 = RIGHT, 2 = BOTTOM, 3 = LEFT
+const seatMap = [null, null, null, null];
+
+// Join game (players sit clockwise)
 document.getElementById("joinBtn").addEventListener("click", () => {
   const name = document.getElementById("nameInput").value.trim();
-  if (name && players.length < 4) {
-    players.push(name);
-    chips.push(3);
-    updateTable();
-    document.getElementById("nameInput").value = "";
-    highlightCurrentPlayer();
+  if (!name) return;
 
-    // Stop idle dice cycling once the game starts
-    if (idleDiceInterval) {
-      clearInterval(idleDiceInterval);
-      idleDiceInterval = null;
-    }
+  const seatIndex = seatMap.indexOf(null);
+  if (seatIndex === -1) return; // table full
+
+  seatMap[seatIndex] = name;
+  players.push(name);
+  chips.push(3);
+
+  updateTable();
+  document.getElementById("nameInput").value = "";
+  highlightCurrentPlayer();
+
+  if (idleDiceInterval) {
+    clearInterval(idleDiceInterval);
+    idleDiceInterval = null;
   }
 });
+
+// Helpers to get seat index and neighbors
+function getSeatIndex(playerName) {
+  return seatMap.indexOf(playerName);
+}
+
+// LEFT = clockwise
+function getLeftPlayer(playerName) {
+  const seat = getSeatIndex(playerName);
+  const leftSeat = (seat - 1 + 4) % 4;
+  return seatMap[leftSeat];
+}
+
+// RIGHT = counter‑clockwise
+function getRightPlayer(playerName) {
+  const seat = getSeatIndex(playerName);
+  const rightSeat = (seat + 1) % 4;
+  return seatMap[rightSeat];
+}
 
 // Roll dice
 document.getElementById("rollBtn").addEventListener("click", () => {
@@ -40,31 +67,41 @@ document.getElementById("rollBtn").addEventListener("click", () => {
     outcomes.push(rollDie());
   }
 
-  // Animate dice roll with 3D spin above center pot
   animateDice(outcomes);
 
   let wildRolled = false;
 
-  // Resolve Left/Right/Center immediately
+  // Resolve Left/Right/Center using SEAT LOGIC
   outcomes.forEach(outcome => {
+    const rollerName = players[currentPlayer];
+
     if (outcome === "Left" && chips[currentPlayer] > 0) {
+      const leftName = getLeftPlayer(rollerName);
+      const leftIndex = players.indexOf(leftName);
+
       chips[currentPlayer]--;
-      chips[(currentPlayer - 1 + players.length) % players.length]++;
-    } else if (outcome === "Right" && chips[currentPlayer] > 0) {
+      chips[leftIndex]++;
+    }
+
+    else if (outcome === "Right" && chips[currentPlayer] > 0) {
+      const rightName = getRightPlayer(rollerName);
+      const rightIndex = players.indexOf(rightName);
+
       chips[currentPlayer]--;
-      chips[(currentPlayer + 1) % players.length]++;
-    } else if (outcome === "Center" && chips[currentPlayer] > 0) {
+      chips[rightIndex]++;
+    }
+
+    else if (outcome === "Center" && chips[currentPlayer] > 0) {
       chips[currentPlayer]--;
       centerPot++;
-    } else if (outcome === "Wild") {
+    }
+
+    else if (outcome === "Wild") {
       wildRolled = true;
     }
-    // Dottt = keep chip
   });
 
   updateTable();
-
-  // Log roll into history instead of game board
   addHistory(players[currentPlayer], outcomes);
 
   if (wildRolled) {
@@ -82,7 +119,7 @@ function rollDie() {
   return sides[Math.floor(Math.random() * sides.length)];
 }
 
-// Animate dice with CSS spin effect
+// Animate dice
 function animateDice(outcomes) {
   const diceArea = document.getElementById("diceArea");
   diceArea.innerHTML = renderDice(outcomes);
@@ -92,12 +129,11 @@ function animateDice(outcomes) {
     die.classList.add("roll");
     setTimeout(() => {
       die.classList.remove("roll");
-      die.src = `assets/dice/${outcomes[i]}.png`; // final face
+      die.src = `assets/dice/${outcomes[i]}.png`;
     }, 600);
   });
 }
 
-// Render dice images
 function renderDice(outcomes) {
   return outcomes.map(o =>
     `<img src="assets/dice/${o}.png" alt="${o}" class="die">`
@@ -108,10 +144,8 @@ function updateTable() {
   players.forEach((p, i) => {
     const playerDiv = document.getElementById("player" + i);
     if (playerDiv) {
-      const nameDiv = playerDiv.querySelector(".name");
-      const chipsDiv = playerDiv.querySelector(".chips");
-      if (nameDiv) nameDiv.textContent = p;
-      if (chipsDiv) chipsDiv.textContent = `Chips: ${chips[i]}`;
+      playerDiv.querySelector(".name").textContent = p;
+      playerDiv.querySelector(".chips").textContent = `Chips: ${chips[i]}`;
     }
   });
   document.getElementById("centerPot").innerText = `Center Pot: ${centerPot}`;
@@ -134,14 +168,13 @@ function checkWinner() {
   }
 }
 
-// Highlight current player’s seat
 function highlightCurrentPlayer() {
   document.querySelectorAll('.player').forEach((el, i) => {
     el.classList.toggle('active', i === currentPlayer);
   });
 }
 
-// Show steal options when Wild is rolled
+// Wild steal options
 function showStealOptions(rollerIndex) {
   const resultsDiv = document.getElementById("results");
   const opponents = players.map((p, i) => ({ name: p, index: i }))
@@ -176,7 +209,7 @@ function showStealOptions(rollerIndex) {
   resultsDiv.appendChild(optionsDiv);
 }
 
-// Add roll history
+// Roll history
 function addHistory(player, outcomes) {
   const historyDiv = document.getElementById("rollHistory");
   const entry = document.createElement("div");
@@ -185,16 +218,13 @@ function addHistory(player, outcomes) {
   historyDiv.prepend(entry);
 }
 
-// Show random dice faces at startup and refresh every 2s until game starts
+// Idle dice shuffle
 function showRandomDice() {
   const diceArea = document.getElementById("diceArea");
   let randomFaces = [];
-  for (let i = 0; i < 3; i++) {
-    randomFaces.push(rollDie());
-  }
+  for (let i = 0; i < 3; i++) randomFaces.push(rollDie());
   diceArea.innerHTML = renderDice(randomFaces);
 
-  // Animate idle dice too
   const diceImgs = diceArea.querySelectorAll(".die");
   diceImgs.forEach(die => {
     die.classList.add("roll");
@@ -202,8 +232,7 @@ function showRandomDice() {
   });
 }
 
-// Run once on page load
 document.addEventListener("DOMContentLoaded", () => {
   showRandomDice();
-  idleDiceInterval = setInterval(showRandomDice, 2000); // refresh every 2s
+  idleDiceInterval = setInterval(showRandomDice, 2000);
 });
