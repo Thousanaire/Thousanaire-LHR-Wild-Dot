@@ -46,12 +46,12 @@ document.getElementById("joinBtn").addEventListener("click", () => {
 
 // LEFT = clockwise
 function getLeftSeatIndex(seat) {
-  return (seat - 1 + 4) % 4;
+  return (seat + 1) % 4;
 }
 
 // RIGHT = counter‑clockwise
 function getRightSeatIndex(seat) {
-  return (seat + 1) % 4;
+  return (seat - 1 + 4) % 4;
 }
 
 // Roll dice
