@@ -230,7 +230,7 @@ main {
   cursor: not-allowed;
 }
 
-/* RIGHT COLUMN (Wild Panel ABOVE History) */
+/* RIGHT COLUMN */
 #rightColumn {
   flex: 1;
   display: flex;
@@ -247,11 +247,11 @@ main {
   box-shadow: 0 4px 12px rgba(0,0,0,0.6);
   box-sizing: border-box;
   min-height: 80px;
+  font-size: 12px; /* smaller font */
 }
 
-#wildContent h3 {
-  margin-top: 0;
-  margin-bottom: 0.5rem;
+#wildPanel h2 {
+  font-size: 14px;
 }
 
 #wildContent button {
@@ -263,7 +263,7 @@ main {
   border: none;
   cursor: pointer;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 12px; /* smaller */
   transition: 0.2s ease;
 }
 
@@ -282,6 +282,11 @@ main {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  font-size: 12px; /* smaller font */
+}
+
+#history h2 {
+  font-size: 14px;
 }
 
 #rollHistory {
@@ -294,6 +299,7 @@ main {
   max-height: 180px;
   margin-top: 0.5rem;
   border: 1px solid #333;
+  font-size: 12px; /* smaller */
 }
 
 .history-entry {
@@ -301,7 +307,7 @@ main {
   margin-bottom: 6px;
   background: #333;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 12px; /* smaller */
   color: #ddd;
   box-shadow: 0 0 4px rgba(255,64,129,0.3);
 }
@@ -319,6 +325,11 @@ main {
   max-height: 180px;
   display: flex;
   flex-direction: column;
+  font-size: 12px; /* smaller */
+}
+
+#chat h2 {
+  font-size: 14px;
 }
 
 #chatMessages {
@@ -329,6 +340,7 @@ main {
   border-radius: 8px;
   padding: 0.8rem;
   margin-bottom: 0.5rem;
+  font-size: 12px; /* smaller */
 }
 
 .chat-input {
@@ -345,6 +357,7 @@ main {
   background: #222;
   color: #fff;
   margin-right: 0.5rem;
+  font-size: 12px; /* smaller */
 }
 
 #sendBtn {
@@ -353,9 +366,10 @@ main {
   border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
+  font-size: 12px; /* smaller */
 }
 
-/* Flying chip animation (enhanced) */
+/* Flying chip animation */
 .chip-fly {
   position: fixed;
   width: 32px;
@@ -432,3 +446,25 @@ main {
   }
 
   #game {
+    order: 1;
+  }
+
+  #chat {
+    order: 4;
+  }
+
+  #table {
+    grid-template-columns: 80px 1fr 80px;
+    grid-template-rows: 80px 1fr 80px;
+  }
+
+  .avatar {
+    width: 64px;
+    height: 64px;
+  }
+
+  .die {
+    width: 64px;
+    height: 64px;
+  }
+}
