@@ -306,7 +306,7 @@ main {
   box-shadow: 0 0 4px rgba(255,64,129,0.3);
 }
 
-/* Chat Box */
+/* Chat Box — SAME SIZE AS ROLL HISTORY */
 #chat {
   width: 100%;
   margin-top: 1rem;
@@ -315,11 +315,14 @@ main {
   padding: 1rem;
   box-shadow: 0 4px 12px rgba(0,0,0,0.6);
   box-sizing: border-box;
+  height: 180px;
+  max-height: 180px;
+  display: flex;
+  flex-direction: column;
 }
 
 #chatMessages {
-  height: 200px;
-  max-height: 200px;
+  flex: 1;
   overflow-y: auto;
   background: #222;
   color: #eee;
@@ -429,25 +432,3 @@ main {
   }
 
   #game {
-    order: 1;
-  }
-
-  #chat {
-    order: 4;
-  }
-
-  #table {
-    grid-template-columns: 80px 1fr 80px;
-    grid-template-rows: 80px 1fr 80px;
-  }
-
-  .avatar {
-    width: 64px;
-    height: 64px;
-  }
-
-  .die {
-    width: 64px;
-    height: 64px;
-  }
-}
