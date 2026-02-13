@@ -369,9 +369,6 @@ function handleWildSteals(rollerIndex, wildCount) {
       return;
     }
 
-    const buttonRow = document.createElement("div");
-    buttonRow.classList.add("wild-button-row");
-
     opponents.forEach(opponent => {
       const btn = document.createElement("button");
       btn.textContent = `Steal from ${opponent.name}`;
@@ -399,10 +396,8 @@ function handleWildSteals(rollerIndex, wildCount) {
           renderWildPanel();
         }
       };
-      buttonRow.appendChild(btn);
+      wildContent.appendChild(btn);
     });
-
-    wildContent.appendChild(buttonRow);
   }
 
   renderWildPanel();
