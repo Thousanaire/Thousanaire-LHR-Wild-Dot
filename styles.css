@@ -7,6 +7,11 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+
+  /* FIX — prevent phantom horizontal scroll on iPhone */
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Header */
@@ -107,7 +112,7 @@ section {
   padding: 1rem;
 }
 
-/* Remove extra card styling on these containers so inner cards stand out */
+/* Remove extra card styling */
 #game,
 #rightColumn {
   background: transparent;
@@ -141,6 +146,11 @@ section {
   max-width: 600px;
   aspect-ratio: 4 / 3;
   margin: 0 auto;
+
+  /* FIX — force true centering */
+  margin-left: auto;
+  margin-right: auto;
+  justify-self: center;
 }
 
 /* Player positions */
@@ -155,6 +165,9 @@ section {
   align-items: center;
   justify-content: center;
   transition: 0.2s ease;
+
+  /* FIX — prevent wide names from shifting grid */
+  max-width: 90px;
 }
 
 .player.active {
@@ -197,7 +210,7 @@ section {
   color: #ff4081;
 }
 
-/* Center area with dice + pot */
+/* Center area */
 #centerArea {
   grid-area: center;
   display: flex;
@@ -207,7 +220,7 @@ section {
   position: relative;
 }
 
-/* Soft spotlight behind dice */
+/* Soft spotlight */
 #centerArea::before {
   content: "";
   position: absolute;
@@ -256,7 +269,7 @@ section {
   box-shadow: 0 0 8px rgba(255,64,129,0.6);
 }
 
-/* Controls under board */
+/* Controls */
 .controls {
   margin-top: 1rem;
   display: flex;
@@ -288,7 +301,7 @@ section {
   cursor: not-allowed;
 }
 
-/* Current turn text */
+/* Current turn */
 #currentTurn {
   margin-top: 0.5rem;
   font-size: 0.9rem;
@@ -510,6 +523,10 @@ section {
   #game {
     order: 1;
     padding: 0.75rem;
+
+    /* FIX — ensure game area centers children */
+    width: 100%;
+    align-items: center;
   }
 
   #rightColumn {
@@ -521,8 +538,10 @@ section {
     max-width: none;
     width: 100%;
     aspect-ratio: 1 / 1;
-    grid-template-columns: 70px 1fr 70px;
-    grid-template-rows: 70px 1fr 70px;
+
+    /* FIX — remove 70px hard columns causing overflow */
+    grid-template-columns: clamp(60px, 22vw, 80px) 1fr clamp(60px, 22vw, 80px);
+    grid-template-rows: clamp(60px, 22vw, 80px) 1fr clamp(60px, 22vw, 80px);
   }
 }
 
