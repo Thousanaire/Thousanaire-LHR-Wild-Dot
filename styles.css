@@ -110,9 +110,12 @@ section {
   flex-direction: column;
   align-items: center;
   padding: 1rem;
+
+  /* NEW — Prevent Safari height collapse */
+  min-height: calc(100vh - 180px);
 }
 
-/* Remove extra card styling on these containers so inner cards stand out */
+/* Remove extra card styling */
 #game,
 #rightColumn {
   background: transparent;
@@ -146,6 +149,10 @@ section {
   max-width: 600px;
   aspect-ratio: 4 / 3;
   margin: 0 auto;
+
+  /* NEW — Prevent Safari stretching */
+  align-content: center;
+  justify-content: center;
 }
 
 /* Player positions */
@@ -202,7 +209,7 @@ section {
   color: #ff4081;
 }
 
-/* Center area with dice + pot */
+/* Center area */
 #centerArea {
   grid-area: center;
   display: flex;
@@ -212,7 +219,7 @@ section {
   position: relative;
 }
 
-/* Soft spotlight behind dice */
+/* Soft spotlight */
 #centerArea::before {
   content: "";
   position: absolute;
@@ -261,7 +268,7 @@ section {
   box-shadow: 0 0 8px rgba(255,64,129,0.6);
 }
 
-/* Controls under board */
+/* Controls */
 .controls {
   margin-top: 1rem;
   display: flex;
@@ -280,7 +287,7 @@ section {
   font-weight: bold;
   transition: transform 0.2s, box-shadow 0.3s, background 0.3s;
   font-size: 0.9rem;
-  min-height: 48px; /* Mobile touch target */
+  min-height: 48px;
 }
 
 #rollBtn:hover,
@@ -294,7 +301,7 @@ section {
   cursor: not-allowed;
 }
 
-/* Current turn text */
+/* Current turn */
 #currentTurn {
   margin-top: 0.5rem;
   font-size: 0.9rem;
@@ -342,7 +349,7 @@ section {
   font-weight: bold;
   font-size: 12px;
   transition: 0.2s ease;
-  min-height: 44px; /* Mobile touch target */
+  min-height: 44px;
 }
 
 #wildContent button:hover {
@@ -429,7 +436,7 @@ section {
   color: #fff;
   margin-right: 0.5rem;
   font-size: 12px;
-  min-height: 40px; /* Mobile touch target */
+  min-height: 40px;
 }
 
 #sendBtn {
@@ -440,7 +447,7 @@ section {
   cursor: pointer;
   font-size: 12px;
   border: none;
-  min-height: 40px; /* Mobile touch target */
+  min-height: 40px;
 }
 
 /* Flying chip animation */
@@ -506,10 +513,10 @@ section {
   border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
-  min-height: 48px; /* Mobile touch target */
+  min-height: 48px;
 }
 
-/* MOBILE ONLY - Minimal fixes */
+/* MOBILE FIXES — UPDATED */
 @media (max-width: 900px) {
   main {
     flex-direction: column;
@@ -535,8 +542,14 @@ section {
     max-width: none;
     width: 100%;
     aspect-ratio: 1 / 1; /* Square on mobile */
+
+    /* NEW — Balanced center row */
     grid-template-columns: clamp(60px, 22vw, 80px) 1fr clamp(60px, 22vw, 80px);
-    grid-template-rows: clamp(60px, 22vw, 80px) 1fr clamp(60px, 22vw, 80px);
+    grid-template-rows:
+      clamp(60px, 22vw, 80px)
+      clamp(120px, 40vw, 200px)
+      clamp(60px, 22vw, 80px);
+
     gap: clamp(8px, 2vw, 12px);
     padding: clamp(12px, 4vw, 20px);
   }
@@ -547,20 +560,4 @@ section {
   }
 
   #rollHistory, #chat {
-    height: 140px !important;
-    max-height: 140px !important;
-  }
-}
-
-/* Your existing desktop styles */
-@media (min-width: 1100px) {
-  #rollHistory {
-    height: 220px;
-    max-height: 220px;
-  }
-
-  #chat {
-    height: 220px;
-    max-height: 220px;
-  }
-}
+    height: 140px !
