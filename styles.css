@@ -1,558 +1,177 @@
-/* Global styles */
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  margin: 0;
-  background: radial-gradient(circle at top, #151515 0%, #000 55%, #050509 100%);
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-
-  /* FIX — prevent phantom horizontal scroll on iPhone */
-  overflow-x: hidden;
-  width: 100%;
-  max-width: 100%;
-}
-
-/* Header */
-header {
-  background: linear-gradient(135deg, #05040b, #111216);
-  color: #fff;
-  padding: 0.75rem 1.25rem;
-  width: 100%;
-  box-sizing: border-box;
+/* Avatar Picker */
+.avatar-picker {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-header h1 {
-  margin: 0;
-  font-size: clamp(1.4rem, 2vw, 1.8rem);
-  letter-spacing: 0.03em;
-}
-
-/* Join Game box */
-#joinGame {
-  background: rgba(20, 20, 24, 0.95);
-  color: #fff;
-  padding: 0.5rem 0.75rem;
-  border-radius: 999px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  margin-top: 0.25rem;
-  flex-wrap: wrap;
-  justify-content: center;
+  background: rgba(20,20,24,0.95);
   border: 1px solid rgba(255,64,129,0.4);
-}
-
-#nameInput,
-#avatarSelect,
-#colorSelect {
-  padding: 0.35rem 0.6rem;
-  border-radius: 999px;
-  border: 1px solid #333;
-  font-size: 0.85rem;
-  background: #141419;
-  color: #fff;
-}
-
-#joinBtn {
-  background: linear-gradient(135deg, #ff4081, #7c4dff);
-  color: #fff;
-  border: none;
-  padding: 0.4rem 0.9rem;
-  cursor: pointer;
-  border-radius: 999px;
-  font-weight: bold;
-  transition: transform 0.2s, box-shadow 0.3s, background 0.3s;
-  font-size: 0.9rem;
-}
-
-#joinBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255,64,129,0.6);
-}
-
-/* Main layout */
-main {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: flex-start;
-  flex: 1;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem;
-  box-sizing: border-box;
-  gap: 1rem;
-}
-
-/* Global card-style for sections */
-section {
-  background: rgba(20, 20, 20, 0.9);
-  border-radius: 16px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 18px 35px rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-}
-
-/* Game Board */
-#game {
-  flex: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem;
-}
-
-/* Remove extra card styling */
-#game,
-#rightColumn {
-  background: transparent;
-  box-shadow: none;
-  border: none;
-}
-
-#game h2 {
-  align-self: flex-start;
-  margin: 0 0 0.75rem 0;
-}
-
-/* Game table */
-#table {
-  display: grid;
-  grid-template-areas:
-    ". top ."
-    "left center right"
-    ". bottom .";
-  grid-template-columns: minmax(80px, 120px) 1fr minmax(80px, 120px);
-  grid-template-rows: minmax(80px, 120px) minmax(220px, 1fr) minmax(80px, 120px);
-  align-items: center;
-  justify-items: center;
-  gap: 20px;
-
-  background: radial-gradient(circle at center, #161616 0%, #050505 85%);
-  border-radius: 24px;
-  padding: clamp(16px, 3vw, 32px);
-
-  width: 100%;
-  max-width: 600px;
-  aspect-ratio: 4 / 3;
-  margin: 0 auto;
-
-  /* FIX — force true centering */
-  margin-left: auto;
-  margin-right: auto;
-  justify-self: center;
-}
-
-/* Player positions */
-.player.top { grid-area: top; }
-.player.bottom { grid-area: bottom; }
-.player.left { grid-area: left; }
-.player.right { grid-area: right; }
-
-.player {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transition: 0.2s ease;
-
-  /* FIX — prevent wide names from shifting grid */
-  max-width: 90px;
-}
-
-.player.active {
   border-radius: 12px;
-  transform: scale(1.05);
-  box-shadow: 0 0 18px rgba(0, 229, 255, 0.6);
+  padding: 0.4rem;
 }
 
-.player.eliminated {
-  opacity: 0.4;
-}
-
-.player.eliminated .avatar {
-  filter: grayscale(100%);
-}
-
-.player.eliminated .name,
-.player.eliminated .chips {
-  color: #888;
-}
-
-/* Avatars */
-.avatar {
-  width: clamp(56px, 7vw, 80px);
-  height: clamp(56px, 7vw, 80px);
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 5px;
-  border: 3px solid transparent;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.45);
-}
-
-.name {
-  font-weight: bold;
-  margin-top: 4px;
-}
-
-.chips {
-  font-size: 14px;
-  color: #ff4081;
-}
-
-/* Center area */
-#centerArea {
-  grid-area: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-/* Soft spotlight */
-#centerArea::before {
-  content: "";
-  position: absolute;
-  width: 180px;
-  height: 180px;
-  background: radial-gradient(circle, rgba(255,64,129,0.15), transparent 70%);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  z-index: -1;
-}
-
-#diceArea {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.die {
-  width: clamp(56px, 6vw, 80px);
-  height: clamp(56px, 6vw, 80px);
-  transition: transform 0.6s ease;
-}
-
-/* Dice roll animation */
-.die.roll {
-  animation: spin 0.6s linear;
-}
-
-@keyframes spin {
-  0%   { transform: rotateX(0) rotateY(0); }
-  25%  { transform: rotateX(180deg) rotateY(90deg); }
-  50%  { transform: rotateX(360deg) rotateY(180deg); }
-  75%  { transform: rotateX(540deg) rotateY(270deg); }
-  100% { transform: rotateX(720deg) rotateY(360deg); }
-}
-
-#centerPot {
-  font-size: 16px;
-  font-weight: bold;
-  color: #fff;
-  background: #222;
-  padding: 6px 12px;
-  border-radius: 8px;
-  box-shadow: 0 0 8px rgba(255,64,129,0.6);
-}
-
-/* Controls */
-.controls {
-  margin-top: 1rem;
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-}
-
-#rollBtn,
-#resetBtn {
-  background: linear-gradient(135deg, #ff4081, #7c4dff);
-  color: #fff;
-  border: none;
-  padding: 0.55rem 1.1rem;
-  cursor: pointer;
-  border-radius: 999px;
-  font-weight: bold;
-  transition: transform 0.2s, box-shadow 0.3s, background 0.3s;
-  font-size: 0.9rem;
-}
-
-#rollBtn:hover,
-#resetBtn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(255,64,129,0.6);
-}
-
-#rollBtn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* Current turn */
-#currentTurn {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: #ccc;
-}
-
-/* RIGHT COLUMN */
-#rightColumn {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-/* Wild Steal Panel */
-#wildPanel {
-  background: #1e1e1e;
-  color: #fff;
-  padding: 1rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-  box-sizing: border-box;
-  min-height: 80px;
-  font-size: 12px;
-}
-
-#wildPanel h2,
-#history h2,
-#chat h2 {
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin: 0 0 0.4rem;
-  color: #f5f5f5;
-}
-
-#wildContent button {
-  margin: 4px;
-  padding: 0.55rem 1.1rem;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #ff4081, #7c4dff);
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 12px;
-  transition: 0.2s ease;
-}
-
-#wildContent button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 10px rgba(255,64,129,0.7);
-}
-
-/* Roll History Panel */
-#history {
-  background: #1e1e1e;
-  color: #fff;
-  padding: 1rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  font-size: 12px;
-}
-
-#rollHistory {
-  background: #15151a;
-  color: #eee;
-  border-radius: 12px;
-  padding: 0.8rem;
-  overflow-y: auto;
-  height: 180px;
-  max-height: 180px;
-  margin-top: 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  font-size: 12px;
-}
-
-.history-entry {
-  padding: 6px 8px;
-  margin-bottom: 6px;
-  background: #333;
-  border-radius: 6px;
-  font-size: 12px;
+.avatar-picker label {
+  font-size: 0.8rem;
   color: #ddd;
-  box-shadow: 0 0 4px rgba(255,64,129,0.3);
+  margin-bottom: 0.25rem;
 }
 
-/* Chat Box */
-#chat {
-  width: 100%;
-  margin-top: 0.25rem;
-  background: #1e1e1e;
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-  box-sizing: border-box;
-  height: 180px;
-  max-height: 180px;
+.avatar-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.avatar-option {
   display: flex;
   flex-direction: column;
-  font-size: 12px;
-}
-
-#chatMessages {
-  flex: 1;
-  overflow-y: auto;
-  background: #15151a;
-  color: #eee;
-  border-radius: 12px;
-  padding: 0.8rem;
-  margin-bottom: 0.5rem;
-  font-size: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.chat-input {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-}
-
-#chatInput {
-  flex: 1;
-  padding: 0.5rem;
-  border-radius: 8px;
-  border: 1px solid #444;
-  background: #141419;
-  color: #fff;
-  margin-right: 0.5rem;
-  font-size: 12px;
-}
-
-#sendBtn {
-  background: linear-gradient(135deg, #ff4081, #7c4dff);
-  padding: 0.55rem 1.1rem;
-  border-radius: 8px;
-  font-weight: bold;
+  justify-content: center;
   cursor: pointer;
-  font-size: 12px;
-  border: none;
+  background: #141419;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  padding: 6px;
+  transition: 0.2s;
+  width: 60px;
 }
 
-/* Flying chip animation */
-.chip-fly {
-  position: fixed;
-  width: 32px;
-  height: 32px;
+.avatar-option img {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: radial-gradient(circle, #fff176 0%, #ffca28 40%, #ff9800 70%, #ff4081 100%);
-  box-shadow: 0 0 20px rgba(255,64,129,0.9), 0 0 40px rgba(255,64,129,0.6);
-  z-index: 9999;
-  pointer-events: none;
-  transition: top 0.45s cubic-bezier(0.25, 1.25, 0.5, 1),
-              left 0.45s cubic-bezier(0.25, 1.25, 0.5, 1),
-              transform 0.45s ease-out,
-              opacity 0.25s ease-out;
+  margin-bottom: 2px;
+  border: 2px solid rgba(255,255,255,0.2);
 }
 
-.chip-fly::after {
-  content: "";
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: rgba(255,64,129,0.4);
-  filter: blur(12px);
-  opacity: 0.7;
+.avatar-option span {
+  font-size: 0.7rem;
+  color: #eee;
 }
 
-/* Modal */
-.modal-overlay {
+.avatar-option:hover {
+  transform: scale(1.05);
+  border-color: #ff4081;
+}
+
+.avatar-option.selected {
+  border-color: #7c4dff;
+  box-shadow: 0 0 10px rgba(124,77,255,0.6);
+}
+
+/* ============ INTRO ANIMATED AVATAR SCREEN ============ */
+#introOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.75);
+  background: radial-gradient(circle at top, #0a0a0f 0%, #000 95%);
+  z-index: 99999;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
-}
-
-.modal-overlay.hidden {
-  display: none;
-}
-
-.modal {
-  background: #1e1e1e;
-  padding: 1.5rem 2rem;
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(255,64,129,0.8);
+  flex-direction: column;
+  color: #fff;
   text-align: center;
 }
 
-.modal h2 {
-  margin-top: 0;
+#introPanel {
+  background: rgba(20,20,24,0.95);
+  border: 2px solid rgba(255,64,129,0.6);
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 0 35px rgba(255,64,129,0.6);
+  max-width: 350px;
 }
 
-.modal button {
-  margin-top: 1rem;
-  background: linear-gradient(135deg, #ff4081, #7c4dff);
-  color: #fff;
-  border: none;
-  padding: 0.55rem 1.2rem;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
+#avatarContainer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
 }
 
-/* Responsive tweaks */
-@media (max-width: 900px) {
-  main {
-    flex-direction: column;
-    align-items: stretch;
-    max-width: 100%;
-  }
-
-  #game {
-    order: 1;
-    padding: 0.75rem;
-
-    /* FIX — ensure game area centers children */
-    width: 100%;
-    align-items: center;
-  }
-
-  #rightColumn {
-    width: 100%;
-    order: 2;
-  }
-
-  #table {
-    max-width: none;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-
-    /* FIX — remove 70px hard columns causing overflow */
-    grid-template-columns: clamp(60px, 22vw, 80px) 1fr clamp(60px, 22vw, 80px);
-    grid-template-rows: clamp(60px, 22vw, 80px) 1fr clamp(60px, 22vw, 80px);
-  }
+#introAvatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #ff4081;
+  box-shadow: 0 0 20px rgba(255,64,129,0.8);
+  animation: avatarFloat 3s ease-in-out infinite;
 }
 
-@media (min-width: 1100px) {
-  #rollHistory {
-    height: 220px;
-    max-height: 220px;
-  }
+#mouthOverlay {
+  position: absolute;
+  bottom: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 15px;
+  background: #333;
+  border-radius: 0 0 20px 20px;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
 
-  #chat {
-    height: 220px;
-    max-height: 220px;
-  }
+#avatarContainer.talking #mouthOverlay {
+  opacity: 1;
+  animation: mouthMove 0.4s ease-in-out infinite;
+}
+
+@keyframes avatarFloat {
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-8px);}
+}
+
+@keyframes mouthMove {
+  0%,100%{height:15px;}
+  50%{height:25px;}
+}
+
+/* Typing animation */
+.typewriter {
+  overflow: hidden;
+  border-right: 2px solid #ff4081;
+  white-space: nowrap;
+  animation: typing 2.5s steps(40,end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+  from{width:0;}
+  to{width:100%;}
+}
+
+@keyframes blink-caret {
+  from,to{border-color:transparent;}
+  50%{border-color:#ff4081;}
+}
+
+/* Speech fade timing */
+#speech1{opacity:0;transition:opacity 0.5s 0.5s;}
+#speech2{opacity:0;transition:opacity 0.5s 2s;}
+#speech3{opacity:0;transition:opacity 0.5s 4s;}
+#introOverlay.show-speech1 #speech1,
+#introOverlay.show-speech2 #speech2,
+#introOverlay.show-speech3 #speech3{opacity:1;}
+
+#introButtons{
+  margin-top:1rem;
+  display:flex;
+  gap:1rem;
+  justify-content:center;
+}
+
+#introButtons button{
+  background:linear-gradient(135deg,#ff4081,#7c4dff);
+  color:#fff;
+  border:none;
+  padding:0.55rem 1.2rem;
+  border-radius:10px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:box-shadow 0.3s,transform 0.2s;
+}
+
+#introButtons button:hover{
+  box-shadow:0 0 12px rgba(255,64,129,0.7);
+  transform:scale(1.05);
 }
