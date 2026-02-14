@@ -1,100 +1,77 @@
-// =======================
-// INTRO AVATAR + TYPING
-// =======================
-
-let idleDiceInterval;
-
-// Lines the avatar will explain, one by one
+// INTRO AVATAR TYPEWRITER (ADD-ON ONLY)
 const introLines = [
-  "Welcome to Left Hub Right Wild.",
+  "Welcome to THOUSANAIRE: LEFT HUB RIGHT Wild.",
   "Each player starts with 3 chips.",
-  "Roll up to 3 dice based on how many chips you have.",
-  "Left sends a chip to the player on your left.",
-  "Right sends a chip to the player on your right.",
-  "Hub sends a chip to the center hub pot.",
-  "Wild lets you cancel actions or steal chips in special ways.",
-  "Last player with chips wins the game and the hub pot."
+  "On your turn, you roll up to 3 dice—one for each chip you have.",
+  "LEFT gives a chip to the player on your left.",
+  "RIGHT gives a chip to the player on your right.",
+  "HUB sends a chip to the center pot.",
+  "WILD lets you cancel a result or steal chips, depending on how many you roll.",
+  "Last player with chips wins the hub pot. Good luck, Thousanaire."
 ];
 
-let introLineIndex = 0;
-let introCharIndex = 0;
-let introTyping = false;
+function startIntroOverlay() {
+  const overlay = document.getElementById("introOverlay");
+  if (!overlay) return;
 
-function startIntro() {
-  const introOverlay = document.getElementById("introOverlay");
-  const introText = document.getElementById("introText");
+  const textEl = document.getElementById("introText");
   const skipBtn = document.getElementById("introSkipBtn");
   const enterBtn = document.getElementById("introEnterBtn");
-  const gameWrapper = document.getElementById("gameWrapper");
 
-  if (!introOverlay || !introText || !skipBtn || !enterBtn || !gameWrapper) {
-    // If any of these are missing, just fall back to normal game start
-    initSeatMapping();
-    showRandomDice();
-    idleDiceInterval = setInterval(showRandomDice, 2000);
-    return;
-  }
-
-  gameWrapper.style.display = "none";
-  introOverlay.style.display = "flex";
-  enterBtn.style.display = "none";
+  let lineIndex = 0;
+  let charIndex = 0;
+  let typing = true;
+  let typingTimeout = null;
 
   function typeNextChar() {
-    if (introLineIndex >= introLines.length) {
-      introTyping = false;
-      enterBtn.style.display = "inline-block";
-      return;
-    }
+    if (!typing) return;
+    const line = introLines[lineIndex] || "";
+    textEl.textContent = line.slice(0, charIndex);
 
-    const line = introLines[introLineIndex];
-
-    if (introCharIndex < line.length) {
-      introTyping = true;
-      introText.textContent += line.charAt(introCharIndex);
-      introCharIndex++;
-      setTimeout(typeNextChar, 40);
+    if (charIndex < line.length) {
+      charIndex++;
+      typingTimeout = setTimeout(typeNextChar, 35);
     } else {
-      introTyping = false;
-      setTimeout(() => {
-        introText.style.opacity = 0;
-        setTimeout(() => {
-          introText.textContent = "";
-          introText.style.opacity = 1;
-          introCharIndex = 0;
-          introLineIndex++;
+      // Pause at end of line, then move to next
+      if (lineIndex < introLines.length - 1) {
+        typingTimeout = setTimeout(() => {
+          lineIndex++;
+          charIndex = 0;
           typeNextChar();
-        }, 300);
-      }, 900);
+        }, 900);
+      } else {
+        // Last line finished
+        enterBtn.style.display = "inline-block";
+      }
     }
   }
 
-  function finishIntro() {
-    introOverlay.style.display = "none";
-    gameWrapper.style.display = "block";
-    initSeatMapping();
-    showRandomDice();
-    idleDiceInterval = setInterval(showRandomDice, 2000);
+  function endIntro() {
+    typing = false;
+    if (typingTimeout) clearTimeout(typingTimeout);
+    overlay.style.display = "none";
   }
 
-  skipBtn.addEventListener("click", () => {
-    finishIntro();
-  });
-
-  enterBtn.addEventListener("click", () => {
-    finishIntro();
-  });
+  skipBtn.addEventListener("click", endIntro);
+  enterBtn.addEventListener("click", endIntro);
 
   typeNextChar();
 }
 
-// =======================
-// EXISTING GAME LOGIC
-// =======================
+document.addEventListener("DOMContentLoaded", () => {
+  startIntroOverlay();
+});
+
+
+// =========================
+// YOUR EXISTING GAME CODE
+// =========================
 
 let players = [];          // logical seats: 0=TOP,1=RIGHT,2=BOTTOM,3=LEFT
 let chips = [0, 0, 0, 0];
 let centerPot = 0;
 let currentPlayer = 0;
+let idleDiceInterval;
 
 let eliminated = [false, false, false, false];
 let danger = [false, false, false, false];
@@ -827,6 +804,7 @@ function showRandomDice() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Start with avatar explanation; game initializes when intro finishes
-  startIntro();
+  initSeatMapping();
+  showRandomDice();
+  idleDiceInterval = setInterval(showRandomDice, 2000);
 });
