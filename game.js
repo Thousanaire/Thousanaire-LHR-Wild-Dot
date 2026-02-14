@@ -1,8 +1,100 @@
-let players = []; // logical seats: 0=TOP,1=RIGHT,2=BOTTOM,3=LEFT
+// =======================
+// INTRO AVATAR + TYPING
+// =======================
+
+let idleDiceInterval;
+
+// Lines the avatar will explain, one by one
+const introLines = [
+  "Welcome to Left Hub Right Wild.",
+  "Each player starts with 3 chips.",
+  "Roll up to 3 dice based on how many chips you have.",
+  "Left sends a chip to the player on your left.",
+  "Right sends a chip to the player on your right.",
+  "Hub sends a chip to the center hub pot.",
+  "Wild lets you cancel actions or steal chips in special ways.",
+  "Last player with chips wins the game and the hub pot."
+];
+
+let introLineIndex = 0;
+let introCharIndex = 0;
+let introTyping = false;
+
+function startIntro() {
+  const introOverlay = document.getElementById("introOverlay");
+  const introText = document.getElementById("introText");
+  const skipBtn = document.getElementById("introSkipBtn");
+  const enterBtn = document.getElementById("introEnterBtn");
+  const gameWrapper = document.getElementById("gameWrapper");
+
+  if (!introOverlay || !introText || !skipBtn || !enterBtn || !gameWrapper) {
+    // If any of these are missing, just fall back to normal game start
+    initSeatMapping();
+    showRandomDice();
+    idleDiceInterval = setInterval(showRandomDice, 2000);
+    return;
+  }
+
+  gameWrapper.style.display = "none";
+  introOverlay.style.display = "flex";
+  enterBtn.style.display = "none";
+
+  function typeNextChar() {
+    if (introLineIndex >= introLines.length) {
+      introTyping = false;
+      enterBtn.style.display = "inline-block";
+      return;
+    }
+
+    const line = introLines[introLineIndex];
+
+    if (introCharIndex < line.length) {
+      introTyping = true;
+      introText.textContent += line.charAt(introCharIndex);
+      introCharIndex++;
+      setTimeout(typeNextChar, 40);
+    } else {
+      introTyping = false;
+      setTimeout(() => {
+        introText.style.opacity = 0;
+        setTimeout(() => {
+          introText.textContent = "";
+          introText.style.opacity = 1;
+          introCharIndex = 0;
+          introLineIndex++;
+          typeNextChar();
+        }, 300);
+      }, 900);
+    }
+  }
+
+  function finishIntro() {
+    introOverlay.style.display = "none";
+    gameWrapper.style.display = "block";
+    initSeatMapping();
+    showRandomDice();
+    idleDiceInterval = setInterval(showRandomDice, 2000);
+  }
+
+  skipBtn.addEventListener("click", () => {
+    finishIntro();
+  });
+
+  enterBtn.addEventListener("click", () => {
+    finishIntro();
+  });
+
+  typeNextChar();
+}
+
+// =======================
+// EXISTING GAME LOGIC
+// =======================
+
+let players = [];          // logical seats: 0=TOP,1=RIGHT,2=BOTTOM,3=LEFT
 let chips = [0, 0, 0, 0];
 let centerPot = 0;
 let currentPlayer = 0;
-let idleDiceInterval;
 
 let eliminated = [false, false, false, false];
 let danger = [false, false, false, false];
@@ -12,74 +104,6 @@ let domSeatForLogical = [0, 1, 2, 3];
 
 let playerAvatars = [null, null, null, null];
 let playerColors = [null, null, null, null];
-
-// ========== INTRO AVATAR POPUP CONTROL ==========
-function initIntroAvatar() {
-  const introOverlay = document.getElementById("introOverlay");
-  const introPlayBtn = document.getElementById("introPlayBtn");
-  const introSkipBtn = document.getElementById("introSkipBtn");
-  const introTitle = document.getElementById("introTitle");
-  const speech1 = document.getElementById("speech1");
-  const speech2 = document.getElementById("speech2");
-  const speech3 = document.getElementById("speech3");
-  const avatarContainer = document.getElementById("avatarContainer");
-
-  // Set intro text
-  speech1.textContent = "🎲 Welcome to THOUSANAIRE! 🎲";
-  speech2.textContent = "Roll up to 3 dice. Left=steal from left player, Right=steal from right, Hub=pot!";
-  speech3.innerHTML = "Wild dice let you choose. Triple Wilds = POWER MOVE! 💥 Last with chips WINS!";
-
-  // Play button - start game with animation
-  introPlayBtn.addEventListener("click", () => {
-    avatarContainer.classList.add("talking");
-    setTimeout(() => {
-      introOverlay.classList.add("hide-intro");
-      setTimeout(() => {
-        introOverlay.style.display = "none";
-        initSeatMapping();
-        startIdleDice();
-      }, 800);
-    }, 500);
-  });
-
-  // Skip button - hide immediately
-  introSkipBtn.addEventListener("click", () => {
-    introOverlay.classList.add("hide-intro");
-    setTimeout(() => {
-      introOverlay.style.display = "none";
-      initSeatMapping();
-      startIdleDice();
-    }, 800);
-  });
-
-  // Auto-play speech animations after 1 second
-  setTimeout(() => introOverlay.classList.add("show-speech1"), 1000);
-  setTimeout(() => introOverlay.classList.add("show-speech2"), 3000);
-  setTimeout(() => introOverlay.classList.add("show-speech3"), 5000);
-}
-
-// Add hide animation CSS class trigger
-const style = document.createElement('style');
-style.textContent = `
-  #introOverlay.hide-intro {
-    animation: fadeOutSlide 0.8s ease-out forwards;
-  }
-  @keyframes fadeOutSlide {
-    0% { opacity: 1; transform: scale(1) translateY(0); }
-    50% { opacity: 0.7; transform: scale(0.95); }
-    100% { opacity: 0; transform: scale(0.9) translateY(-20px); }
-  }
-`;
-document.head.appendChild(style);
-
-function startIdleDice() {
-  idleDiceInterval = setInterval(() => {
-    if (!document.getElementById("rollBtn").disabled && players.length === 0) {
-      const diceArea = document.getElementById("diceArea");
-      diceArea.innerHTML = renderDice([rollDie(), rollDie(), rollDie()]);
-    }
-  }, 2000);
-}
 
 function initSeatMapping() {
   const playerDivs = document.querySelectorAll(".player");
@@ -98,9 +122,6 @@ function playSound(id) {
   el.currentTime = 0;
   el.play().catch(() => {});
 }
-
-// Initialize intro when page loads
-document.addEventListener("DOMContentLoaded", initIntroAvatar);
 
 document.getElementById("joinBtn").addEventListener("click", () => {
   const name = document.getElementById("nameInput").value.trim();
@@ -168,7 +189,8 @@ document.getElementById("rollBtn").addEventListener("click", () => {
     document.getElementById("results").innerText =
       players[currentPlayer] + " has no chips, skips turn.";
     addHistory(players[currentPlayer], ["Skipped turn (no chips)"]);
-
+    
+    // 🔥 NEW: Check 2-player endgame condition AFTER their skip turn
     if (activePlayerCount() === 2 && chips[currentPlayer] === 0) {
       const winnerIndex = getLastActivePlayerIndex(currentPlayer);
       if (winnerIndex !== -1) {
@@ -177,7 +199,7 @@ document.getElementById("rollBtn").addEventListener("click", () => {
         return;
       }
     }
-
+    
     danger[currentPlayer] = true;
     handleEndOfTurn();
     return;
@@ -277,12 +299,13 @@ function nextTurn() {
     if (eliminated[next]) continue;
 
     if (chips[next] === 0) {
+      // 🔥 NEW: Zero chips = ONE grace turn (danger=true), then eliminated
       if (danger[next]) {
         eliminated[next] = true;
         document.getElementById("results").innerText = 
           `${players[next]} had no chips after grace turn - ELIMINATED!`;
         updateTable();
-        playSound("sndWild");
+        playSound("sndWild"); // Dramatic elimination sound
         continue;
       } else {
         danger[next] = true;
@@ -314,6 +337,7 @@ function getLastActivePlayerIndex(excludeIndex = null) {
 function handleEndOfTurn() {
   const activeCount = activePlayerCount();
 
+  // 🔥 UPDATED: 2-player rule - if current player ends turn with 0 chips, they lose!
   if (activeCount === 2 && chips[currentPlayer] === 0) {
     const winnerIndex = getLastActivePlayerIndex(currentPlayer);
     if (winnerIndex !== -1) {
@@ -393,29 +417,7 @@ function highlightCurrentPlayer() {
     "Current turn: " + (players[currentPlayer] || "-");
 }
 
-function resetGame() {
-  players = [];
-  chips = [0, 0, 0, 0];
-  centerPot = 0;
-  currentPlayer = 0;
-  eliminated = [false, false, false, false];
-  danger = [false, false, false, false];
-  playerAvatars = [null, null, null, null];
-  playerColors = [null, null, null, null];
-  
-  document.getElementById("rollHistory").innerHTML = "";
-  document.getElementById("results").innerText = "";
-  document.getElementById("rollBtn").disabled = false;
-  updateTable();
-  startIdleDice();
-}
-
-function addHistory(playerName, outcomes) {
-  const history = document.getElementById("rollHistory");
-  const entry = document.createElement("div");
-  entry.textContent = `${playerName}: ${outcomes.join(", ")}`;
-  history.insertBefore(entry, history.firstChild);
-}
+/* ✅ CORRECTED: NO APPLY BUTTONS - ALL ACTIONS IMMEDIATE + 3-WILD FLEXIBLE STEALS */
 
 function openWildChoicePanel(playerIndex, outcomes) {
   const wildContent = document.getElementById("wildContent");
@@ -436,6 +438,7 @@ function openWildChoicePanel(playerIndex, outcomes) {
 
   const wildCount = wildIndices.length;
 
+  // Case 1: No Wilds - immediately apply and end
   if (wildCount === 0) {
     document.getElementById("results").innerText = 
       `${players[playerIndex]} rolled: ${outcomes.join(", ")}`;
@@ -446,6 +449,7 @@ function openWildChoicePanel(playerIndex, outcomes) {
     return;
   }
 
+  // Case 2: 3 Wilds - Take pot OR flexible steals (1/2/3 from any players)
   if (wildCount === 3) {
     wildContent.innerHTML = `
       <h3 style="color: gold;">🎲 ${players[playerIndex]} rolled TRIPLE WILDS! 🎲</h3>
@@ -475,6 +479,7 @@ function openWildChoicePanel(playerIndex, outcomes) {
     return;
   }
 
+  // Case 3: 1-2 Wilds - normal immediate flow
   handleWildsNormalFlow(playerIndex, outcomes, wildIndices, leftIndices, rightIndices, hubIndices);
 }
 
@@ -582,50 +587,246 @@ function handleWildsNormalFlow(playerIndex, outcomes, wildIndices, leftIndices, 
       <p>Wilds left: ${remainingWildCount()}</p>
     `;
 
-    // Add your wild handling logic here...
-    // (rest of the wild logic remains the same)
+    function firstNotCanceled(indicesArray) {
+      return indicesArray.find(i => !canceledIndices.has(i));
+    }
+
+    function pickFreeWildIndex() {
+      return wildIndices.find(w => !wildUsedAsCancel.has(w) && !steals.some(s => s.wildIndex === w));
+    }
+
+    const cancelActions = [
+      {label: "Left", indices: leftIndices},
+      {label: "Right", indices: rightIndices},
+      {label: "Hub", indices: hubIndices}
+    ];
+
+    cancelActions.forEach(({label, indices}) => {
+      const available = firstNotCanceled(indices);
+      if (available !== undefined && remainingWildCount() > 0) {
+        const btn = document.createElement("button");
+        btn.textContent = `❌ Cancel ${label}`;
+        btn.style.padding = "8px";
+        btn.onclick = () => {
+          const freeWild = pickFreeWildIndex();
+          if (freeWild !== undefined) {
+            canceledIndices.add(available);
+            wildUsedAsCancel.add(freeWild);
+            renderWildPanel();
+          }
+        };
+        wildContent.appendChild(btn);
+      }
+    });
+
+    if (remainingWildCount() > 0) {
+      const opponents = players
+        .map((p, i) => ({ name: p, index: i }))
+        .filter(o => o.index !== playerIndex && pExists(o.index) && chips[o.index] > 0 && !eliminated[o.index]);
+
+      opponents.forEach(opponent => {
+        const btn = document.createElement("button");
+        btn.textContent = `💰 Steal from ${opponent.name}`;
+        btn.style.padding = "8px";
+        btn.onclick = () => {
+          const freeWild = pickFreeWildIndex();
+          if (freeWild !== undefined && chips[opponent.index] > 0) {
+            chips[opponent.index]--;
+            chips[playerIndex]++;
+            animateChipTransfer(opponent.index, playerIndex, "wild");
+            playSound("sndWild");
+            if (chips[opponent.index] === 0) danger[opponent.index] = true;
+            danger[playerIndex] = false;
+            updateTable();
+            steals.push({fromIndex: opponent.index, wildIndex: freeWild});
+            setTimeout(renderWildPanel, 600);
+          }
+        };
+        wildContent.appendChild(btn);
+      });
+    }
+
+    if (remainingWildCount() === 0) {
+      setTimeout(() => {
+        document.getElementById("results").innerText = 
+          `${players[playerIndex]} used all Wilds! Applying results...`;
+        applyWildAndOutcomes(playerIndex, outcomes, {
+          canceledIndices, wildIndices, wildUsedAsCancel, steals
+        });
+        wildContent.innerHTML = "";
+        rollBtn.disabled = false;
+        handleEndOfTurn();
+      }, 800);
+    }
   }
 
   renderWildPanel();
 }
 
 function applyOutcomesOnly(playerIndex, outcomes) {
-  // Simplified outcome application for non-wild rolls
-  outcomes.forEach(outcome => {
-    if (outcome === "Left") {
-      const leftIdx = getLeftSeatIndex(playerIndex);
-      if (chips[leftIdx] > 0) {
-        chips[leftIdx]--;
-        chips[playerIndex]++;
-        playSound("sndChip");
-      }
-    } else if (outcome === "Right") {
-      const rightIdx = getRightSeatIndex(playerIndex);
-      if (chips[rightIdx] > 0) {
-        chips[rightIdx]--;
-        chips[playerIndex]++;
-        playSound("sndChip");
-      }
-    } else if (outcome === "Hub") {
-      if (centerPot > 0) {
-        chips[playerIndex]++;
-        centerPot--;
-        playSound("sndChip");
-      }
+  outcomes.forEach((o) => {
+    if (o === "Left" && chips[playerIndex] > 0) {
+      const leftSeat = getLeftSeatIndex(playerIndex);
+      chips[playerIndex]--;
+      if (chips[playerIndex] === 0) danger[playerIndex] = true;
+      chips[leftSeat]++;
+      danger[leftSeat] = false;
+      animateChipTransfer(playerIndex, leftSeat, "left");
+      playSound("sndChip");
+    } else if (o === "Right" && chips[playerIndex] > 0) {
+      const rightSeat = getRightSeatIndex(playerIndex);
+      chips[playerIndex]--;
+      if (chips[playerIndex] === 0) danger[playerIndex] = true;
+      chips[rightSeat]++;
+      danger[rightSeat] = false;
+      animateChipTransfer(playerIndex, rightSeat, "right");
+      playSound("sndChip");
+    } else if (o === "Hub" && chips[playerIndex] > 0) {
+      chips[playerIndex]--;
+      if (chips[playerIndex] === 0) danger[playerIndex] = true;
+      centerPot++;
+      animateChipTransfer(playerIndex, null, "hub");
+      playSound("sndChip");
     }
   });
   updateTable();
-  setTimeout(() => handleEndOfTurn(), 1000);
 }
 
-function animateChipTransfer(fromIdx, toIdx, type) {
-  // Simple visual feedback
-  const fromDiv = document.querySelector(`#player${domSeatForLogical[fromIdx]} .chips`);
-  const toDiv = document.querySelector(`#player${domSeatForLogical[toIdx]} .chips`);
-  if (fromDiv) fromDiv.style.transform = 'scale(1.2)';
-  if (toDiv) toDiv.style.transform = 'scale(1.2)';
-  setTimeout(() => {
-    if (fromDiv) fromDiv.style.transform = '';
-    if (toDiv) toDiv.style.transform = '';
-  }, 300);
+function applyWildAndOutcomes(playerIndex, outcomes, wildData) {
+  const { canceledIndices, wildIndices, wildUsedAsCancel, steals } = wildData;
+
+  outcomes.forEach((o, i) => {
+    if (canceledIndices.has(i)) return;
+    if (wildIndices.includes(i) && !wildUsedAsCancel.has(i) && !steals.some(s => s.wildIndex === i)) return;
+
+    if (o === "Left" && chips[playerIndex] > 0) {
+      const leftSeat = getLeftSeatIndex(playerIndex);
+      chips[playerIndex]--;
+      if (chips[playerIndex] === 0) danger[playerIndex] = true;
+      chips[leftSeat]++;
+      danger[leftSeat] = false;
+      animateChipTransfer(playerIndex, leftSeat, "left");
+      playSound("sndChip");
+    } else if (o === "Right" && chips[playerIndex] > 0) {
+      const rightSeat = getRightSeatIndex(playerIndex);
+      chips[playerIndex]--;
+      if (chips[playerIndex] === 0) danger[playerIndex] = true;
+      chips[rightSeat]++;
+      danger[rightSeat] = false;
+      animateChipTransfer(playerIndex, rightSeat, "right");
+      playSound("sndChip");
+    } else if (o === "Hub" && chips[playerIndex] > 0) {
+      chips[playerIndex]--;
+      if (chips[playerIndex] === 0) danger[playerIndex] = true;
+      centerPot++;
+      animateChipTransfer(playerIndex, null, "hub");
+      playSound("sndChip");
+    }
+  });
+  updateTable();
 }
+
+function pExists(i) {
+  return typeof players[i] !== "undefined" && players[i] !== null;
+}
+
+function addHistory(player, outcomes) {
+  const historyDiv = document.getElementById("rollHistory");
+  const entry = document.createElement("div");
+  entry.classList.add("history-entry");
+  entry.textContent = `${player} rolled: (${outcomes.join(", ")})`;
+  historyDiv.prepend(entry);
+}
+
+function getSeatCenter(logicalSeat) {
+  const domIndex = domSeatForLogical[logicalSeat];
+  const el = document.getElementById("player" + domIndex);
+  if (!el) return null;
+  const rect = el.getBoundingClientRect();
+  return {
+    x: rect.left + rect.width / 2,
+    y: rect.top + rect.height / 2
+  };
+}
+
+function animateChipTransfer(fromSeat, toSeat, type) {
+  let fromPos = null;
+  let toPos = null;
+
+  if (fromSeat !== null && fromSeat !== undefined) {
+    fromPos = getSeatCenter(fromSeat);
+  }
+
+  if (type === "hub") {
+    const pot = document.getElementById("centerPot");
+    const rect = pot.getBoundingClientRect();
+    toPos = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  } else if (toSeat !== null && toSeat !== undefined) {
+    toPos = getSeatCenter(toSeat);
+  }
+
+  if (!fromPos || !toPos) return;
+
+  const chip = document.createElement("div");
+  chip.className = "chip-fly";
+  chip.style.left = fromPos.x + "px";
+  chip.style.top = fromPos.y + "px";
+  chip.style.opacity = "1";
+  chip.style.transform = "scale(1)";
+
+  document.body.appendChild(chip);
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      chip.style.left = toPos.x + "px";
+      chip.style.top = toPos.y + "px";
+      chip.style.transform = "scale(1.35)";
+    });
+  });
+
+  setTimeout(() => {
+    chip.style.opacity = "0";
+    chip.style.transform = "scale(0.7)";
+    setTimeout(() => chip.remove(), 300);
+  }, 500);
+}
+
+function resetGame() {
+  centerPot = 0;
+  eliminated = [false, false, false, false];
+  danger = [false, false, false, false];
+
+  for (let i = 0; i < 4; i++) {
+    if (players[i]) {
+      chips[i] = 3;
+    } else {
+      chips[i] = 0;
+    }
+  }
+
+  currentPlayer = 0;
+  document.getElementById("rollBtn").disabled = false;
+  document.getElementById("results").textContent = "";
+  document.getElementById("rollHistory").innerHTML = "";
+  document.getElementById("wildContent").innerHTML = "";
+  hideGameOver();
+  updateTable();
+}
+
+function showRandomDice() {
+  const diceArea = document.getElementById("diceArea");
+  let randomFaces = [];
+  for (let i = 0; i < 3; i++) randomFaces.push(rollDie());
+  diceArea.innerHTML = renderDice(randomFaces);
+
+  const diceImgs = diceArea.querySelectorAll(".die");
+  diceImgs.forEach(die => {
+    die.classList.add("roll");
+    setTimeout(() => die.classList.remove("roll"), 600);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Start with avatar explanation; game initializes when intro finishes
+  startIntro();
+});
