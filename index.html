@@ -1,152 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>THOUSANAIRE: LEFT HUB RIGHT Wild</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <title>THOUSANAIRE: LEFT HUB RIGHT Wild</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-
-<!-- INTRO / ANIMATED AVATAR SCREEN -->
-<div id="introOverlay">
-  <div id="introPanel">
-    <div id="avatarContainer">
-      <img src="assets/avatar/AvatarOne.png" id="introAvatar" alt="Guide Avatar">
-      <div id="mouthOverlay"></div>
+  <!-- INTRO AVATAR POPUP -->
+  <div id="introOverlay">
+    <div id="introPanel">
+      <div id="avatarContainer">
+        <img src="assets/avatar/AvatarOne.png" id="introAvatar" alt="Game Guide">
+        <div id="mouthOverlay"></div>
+      </div>
+      <h2>🎮 Welcome to THOUSANAIRE!</h2>
+      <div id="introText">
+        <p id="speech1" class="typewriter">🎲 Roll up to 3 dice each turn!</p>
+        <p id="speech2">➡️ LEFT = Steal from LEFT player</p>
+        <p id="speech3">➡️ RIGHT = Steal from RIGHT player</p>
+        <p id="speech4">🎯 HUB = Add chip to center pot</p>
+        <p id="speech5">🎲 WILD = Choose any action!</p>
+        <p id="speech6">💥 Triple Wilds = Take pot OR steal 3 chips!</p>
+        <p id="speech7">🏆 Last player with chips WINS!</p>
+      </div>
+      <div id="introButtons">
+        <button id="introPlayBtn">✅ Enter Game</button>
+        <button id="introSkipBtn">⏭️ Skip (I know rules)</button>
+      </div>
     </div>
+  </div>
 
-    <h2 id="introTitle">Welcome to THOUSANAIRE!</h2>
+  <header>
+    <h1>Thousanaire: LEFT HUB RIGHT Wild</h1>
 
-    <div id="introText">
-      <p id="speech1"></p>
-      <p id="speech2"></p>
-      <p id="speech3"></p>
+    <div id="joinGame">
+      <input type="text" id="nameInput" placeholder="Enter your name" aria-label="Enter your name">
+
+      <select id="avatarSelect" aria-label="Choose avatar">
+        <option value="assets/avatar/AvatarOne.png">Avatar 1</option>
+        <option value="assets/avatar/AvatarTwo.png">Avatar 2</option>
+        <option value="assets/avatar/Avatar3.png">Avatar 3</option>
+        <option value="assets/avatar/AvatarFour.png">Avatar 4</option>
+      </select>
+
+      <select id="colorSelect" aria-label="Choose color">
+        <option value="#ff4081">Pink</option>
+        <option value="#7c4dff">Purple</option>
+        <option value="#00e5ff">Cyan</option>
+        <option value="#ffeb3b">Gold</option>
+      </select>
+
+      <button id="joinBtn">Join Game</button>
     </div>
+  </header>
 
-    <div id="introButtons">
-      <button id="introPlayBtn">🎮 Enter Game</button>
-      <button id="introSkipBtn">⏭️ Skip, I know the rules</button>
+  <main>
+    <!-- GAME BOARD -->
+    <section id="game">
+      <h2>GAME BOARD</h2>
+
+      <div id="table">
+        <!-- TOP PLAYER -->
+        <div class="player top" id="player0">
+          <img src="assets/avatar/AvatarOne.png" class="avatar" alt="Player 0 Avatar">
+          <div class="name"></div>
+          <div class="chips"></div>
+        </div>
+
+        <!-- LEFT PLAYER -->
+        <div class="player left" id="player1">
+          <img src="assets/avatar/AvatarTwo.png" class="avatar" alt="Player 1 Avatar">
+          <div class="name"></div>
+          <div class="chips"></div>
+        </div>
+
+        <!-- CENTER AREA -->
+        <div id="centerArea">
+          <div id="diceArea">
+            <img src="assets/dice/die1.png" class="die" id="die1" alt="Die 1">
+            <img src="assets/dice/die2.png" class="die" id="die2" alt="Die 2">
+            <img src="assets/dice/die3.png" class="die" id="die3" alt="Die 3">
+          </div>
+
+          <div id="centerPot">Hub Pot: 0</div>
+        </div>
+
+        <!-- RIGHT PLAYER -->
+        <div class="player right" id="player2">
+          <img src="assets/avatar/Avatar3.png" class="avatar" alt="Player 2 Avatar">
+          <div class="name"></div>
+          <div class="chips"></div>
+        </div>
+
+        <!-- BOTTOM PLAYER -->
+        <div class="player bottom" id="player3">
+          <img src="assets/avatar/AvatarFour.png" class="avatar" alt="Player 3 Avatar">
+          <div class="name"></div>
+          <div class="chips"></div>
+        </div>
+      </div>
+
+      <!-- CONTROLS -->
+      <div class="controls">
+        <button id="rollBtn">Roll Dice</button>
+        <button id="resetBtn">Reset Game</button>
+      </div>
+
+      <div id="results"></div>
+      <div id="currentTurn">Current turn: -</div>
+    </section>
+
+    <!-- RIGHT COLUMN -->
+    <section id="rightColumn">
+
+      <!-- WILD STEAL PANEL -->
+      <section id="wildPanel">
+        <h2>Wild Steals</h2>
+        <div id="wildContent"></div>
+      </section>
+
+      <!-- ROLL HISTORY -->
+      <section id="history">
+        <h2>Roll History</h2>
+        <div id="rollHistory"></div>
+      </section>
+
+      <!-- CHAT BOX -->
+      <section id="chat">
+        <h2>Chat Box</h2>
+
+        <div id="chatMessages"></div>
+
+        <div class="chat-input">
+          <input type="text" id="chatInput" placeholder="Type a message..." aria-label="Chat input">
+          <button id="sendBtn">Send</button>
+        </div>
+      </section>
+
+    </section>
+  </main>
+
+  <!-- GAME OVER MODAL -->
+  <div id="gameOverOverlay" class="modal-overlay hidden">
+    <div class="modal">
+      <h2 id="gameOverTitle">Game Over</h2>
+      <p id="gameOverText"></p>
+      <button id="playAgainBtn">Play Again</button>
     </div>
   </div>
-</div>
 
-<header>
-<h1>Thousanaire: LEFT HUB RIGHT Wild</h1>
+  <!-- SOUND EFFECTS -->
+  <audio id="sndRoll" src="assets/sounds/roll.mp3" preload="auto"></audio>
+  <audio id="sndChip" src="assets/sounds/chip.mp3" preload="auto"></audio>
+  <audio id="sndWild" src="assets/sounds/wild.mp3" preload="auto"></audio>
+  <audio id="sndWin" src="assets/sounds/win.mp3" preload="auto"></audio>
 
-<div id="joinGame">
-<input type="text" id="nameInput" placeholder="Enter your name" aria-label="Enter your name">
-
-<div id="avatarPicker" class="avatar-picker" aria-label="Choose avatar">
-<label>Select Avatar:</label>
-<div class="avatar-options" id="avatarOptions">
-  <div class="avatar-option selected" data-value="assets/avatar/AvatarOne.png">
-    <img src="assets/avatar/AvatarOne.png" alt="Avatar 1"><span>Avatar 1</span>
-  </div>
-  <div class="avatar-option" data-value="assets/avatar/AvatarTwo.png">
-    <img src="assets/avatar/AvatarTwo.png" alt="Avatar 2"><span>Avatar 2</span>
-  </div>
-  <div class="avatar-option" data-value="assets/avatar/Avatar3.png">
-    <img src="assets/avatar/Avatar3.png" alt="Avatar 3"><span>Avatar 3</span>
-  </div>
-  <div class="avatar-option" data-value="assets/avatar/AvatarFour.png">
-    <img src="assets/avatar/AvatarFour.png" alt="Avatar 4"><span>Avatar 4</span>
-  </div>
-</div>
-<input type="hidden" id="avatarSelect" value="assets/avatar/AvatarOne.png">
-</div>
-
-<select id="colorSelect" aria-label="Choose color">
-  <option value="#ff4081">Pink</option>
-  <option value="#7c4dff">Purple</option>
-  <option value="#00e5ff">Cyan</option>
-  <option value="#ffeb3b">Gold</option>
-</select>
-
-<button id="joinBtn">Join Game</button>
-</div>
-</header>
-
-<main>
-<section id="game">
-<h2>GAME BOARD</h2>
-<div id="table">
-<div class="player top" id="player0">
-  <img src="assets/avatar/AvatarOne.png" class="avatar" alt="Player 0 Avatar">
-  <div class="name"></div>
-  <div class="chips"></div>
-</div>
-<div class="player left" id="player1">
-  <img src="assets/avatar/AvatarTwo.png" class="avatar" alt="Player 1 Avatar">
-  <div class="name"></div>
-  <div class="chips"></div>
-</div>
-<div id="centerArea">
-  <div id="diceArea">
-    <img src="assets/dice/die1.png" class="die" id="die1" alt="Die 1">
-    <img src="assets/dice/die2.png" class="die" id="die2" alt="Die 2">
-    <img src="assets/dice/die3.png" class="die" id="die3" alt="Die 3">
-  </div>
-  <div id="centerPot">Hub Pot: 0</div>
-</div>
-<div class="player right" id="player2">
-  <img src="assets/avatar/Avatar3.png" class="avatar" alt="Player 2 Avatar">
-  <div class="name"></div>
-  <div class="chips"></div>
-</div>
-<div class="player bottom" id="player3">
-  <img src="assets/avatar/AvatarFour.png" class="avatar" alt="Player 3 Avatar">
-  <div class="name"></div>
-  <div class="chips"></div>
-</div>
-</div>
-
-<div class="controls">
-  <button id="rollBtn">Roll Dice</button>
-  <button id="resetBtn">Reset Game</button>
-</div>
-
-<div id="results"></div>
-<div id="currentTurn">Current turn: -</div>
-</section>
-
-<section id="rightColumn">
-  <section id="wildPanel">
-    <h2>Wild Steals</h2>
-    <div id="wildContent"></div>
-  </section>
-
-  <section id="history">
-    <h2>Roll History</h2>
-    <div id="rollHistory"></div>
-  </section>
-
-  <section id="chat">
-    <h2>Chat Box</h2>
-    <div id="chatMessages"></div>
-    <div class="chat-input">
-      <input type="text" id="chatInput" placeholder="Type a message..." aria-label="Chat input">
-      <button id="sendBtn">Send</button>
-    </div>
-  </section>
-</section>
-</main>
-
-<div id="gameOverOverlay" class="modal-overlay hidden">
-  <div class="modal">
-    <h2 id="gameOverTitle">Game Over</h2>
-    <p id="gameOverText"></p>
-    <button id="playAgainBtn">Play Again</button>
-  </div>
-</div>
-
-<audio id="sndRoll" src="assets/sounds/roll.mp3" preload="auto"></audio>
-<audio id="sndChip" src="assets/sounds/chip.mp3" preload="auto"></audio>
-<audio id="sndWild" src="assets/sounds/wild.mp3" preload="auto"></audio>
-<audio id="sndWin" src="assets/sounds/win.mp3" preload="auto"></audio>
-
-<script src="game.js"></script>
-<script src="chat.js"></script>
+  <script src="game.js"></script>
+  <script src="chat.js"></script>
 </body>
 </html>
