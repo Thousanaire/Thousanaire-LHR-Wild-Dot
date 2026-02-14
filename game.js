@@ -97,6 +97,17 @@ document.getElementById("rollBtn").addEventListener("click", () => {
     document.getElementById("results").innerText =
       players[currentPlayer] + " has no chips, skips turn.";
     addHistory(players[currentPlayer], ["Skipped turn (no chips)"]);
+    
+    // 🔥 NEW: Check 2-player endgame condition AFTER their skip turn
+    if (activePlayerCount() === 2 && chips[currentPlayer] === 0) {
+      const winnerIndex = getLastActivePlayerIndex(currentPlayer);
+      if (winnerIndex !== -1) {
+        document.getElementById("results").innerText += " - Last man standing wins!";
+        showGameOver(winnerIndex);
+        return;
+      }
+    }
+    
     danger[currentPlayer] = true;
     handleEndOfTurn();
     return;
@@ -196,12 +207,18 @@ function nextTurn() {
     if (eliminated[next]) continue;
 
     if (chips[next] === 0) {
+      // 🔥 NEW: Zero chips = ONE grace turn (danger=true), then eliminated
       if (danger[next]) {
         eliminated[next] = true;
+        document.getElementById("results").innerText = 
+          `${players[next]} had no chips after grace turn - ELIMINATED!`;
         updateTable();
+        playSound("sndWild"); // Dramatic elimination sound
         continue;
       } else {
         danger[next] = true;
+        document.getElementById("results").innerText = 
+          `${players[next]} has 0 chips - one grace turn given!`;
         continue;
       }
     }
@@ -228,9 +245,12 @@ function getLastActivePlayerIndex(excludeIndex = null) {
 function handleEndOfTurn() {
   const activeCount = activePlayerCount();
 
+  // 🔥 UPDATED: 2-player rule - if current player ends turn with 0 chips, they lose!
   if (activeCount === 2 && chips[currentPlayer] === 0) {
     const winnerIndex = getLastActivePlayerIndex(currentPlayer);
     if (winnerIndex !== -1) {
+      document.getElementById("results").innerText = 
+        `${players[currentPlayer]} has 0 chips with 2 players left - ${players[winnerIndex]} WINS!`;
       showGameOver(winnerIndex);
       return;
     }
@@ -252,6 +272,8 @@ function checkWinner() {
   if (activePlayers === 1) {
     let winnerIndex = getLastActivePlayerIndex(null);
     if (winnerIndex !== -1) {
+      document.getElementById("results").innerText = 
+        `${players[winnerIndex]} is the LAST MAN STANDING!`;
       showGameOver(winnerIndex);
     }
   }
@@ -263,8 +285,8 @@ function showGameOver(winnerIndex) {
   const title = document.getElementById("gameOverTitle");
 
   const winnerName = players[winnerIndex] || "Player";
-  title.textContent = "Game Over";
-  text.textContent = `${winnerName} wins the pot of ${centerPot} chips!`;
+  title.textContent = "🏆 GAME OVER 🏆";
+  text.textContent = `${winnerName} is the LAST MAN STANDING!\nWins ${centerPot} chips from center pot!`;
 
   overlay.classList.remove("hidden");
   document.getElementById("rollBtn").disabled = true;
@@ -391,14 +413,12 @@ function handleThreeWildSteals(playerIndex) {
       );
 
     opponents.forEach(opponent => {
-      // Steal 1 button
       const btn1 = document.createElement("button");
       btn1.textContent = `1 chip ← ${opponent.name} (${opponent.chips})`;
       btn1.style.padding = "10px";
       btn1.onclick = () => performSteal(opponent.index, 1);
       wildContent.appendChild(btn1);
 
-      // Steal 2 button (if they have 2+)
       if (opponent.chips >= 2) {
         const btn2 = document.createElement("button");
         btn2.textContent = `2 chips ← ${opponent.name}`;
@@ -407,7 +427,6 @@ function handleThreeWildSteals(playerIndex) {
         wildContent.appendChild(btn2);
       }
 
-      // Steal 3 button (if they have 3+)
       if (opponent.chips >= 3) {
         const btn3 = document.createElement("button");
         btn3.textContent = `3 chips ← ${opponent.name}`;
@@ -418,7 +437,6 @@ function handleThreeWildSteals(playerIndex) {
       wildContent.appendChild(document.createElement("br"));
     });
 
-    // Finish button when done
     if (stealsRemaining === 0) {
       const finishBtn = document.createElement("button");
       finishBtn.textContent = "✅ Finish turn";
@@ -445,7 +463,7 @@ function handleThreeWildSteals(playerIndex) {
     danger[playerIndex] = false;
     stealsRemaining -= actualCount;
     updateTable();
-    setTimeout(renderStealPanel, 600); // Brief pause for animation
+    setTimeout(renderStealPanel, 600);
   }
 
   function finishThreeWildTurn() {
@@ -485,7 +503,6 @@ function handleWildsNormalFlow(playerIndex, outcomes, wildIndices, leftIndices, 
       return wildIndices.find(w => !wildUsedAsCancel.has(w) && !steals.some(s => s.wildIndex === w));
     }
 
-    // Cancel buttons - IMMEDIATE action
     const cancelActions = [
       {label: "Left", indices: leftIndices},
       {label: "Right", indices: rightIndices},
@@ -510,7 +527,6 @@ function handleWildsNormalFlow(playerIndex, outcomes, wildIndices, leftIndices, 
       }
     });
 
-    // Steal buttons - IMMEDIATE action
     if (remainingWildCount() > 0) {
       const opponents = players
         .map((p, i) => ({ name: p, index: i }))
@@ -538,7 +554,6 @@ function handleWildsNormalFlow(playerIndex, outcomes, wildIndices, leftIndices, 
       });
     }
 
-    // AUTO-FINISH when no Wilds remain
     if (remainingWildCount() === 0) {
       setTimeout(() => {
         document.getElementById("results").innerText = 
