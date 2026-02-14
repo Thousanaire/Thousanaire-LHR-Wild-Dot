@@ -8,13 +8,18 @@
 </head>
 
 <body>
-
-  <!-- INTRO AVATAR OVERLAY (ADD-ON ONLY) -->
-  <div id="introOverlay">
-    <img id="introAvatar" src="assets/avatar/AvatarOne.png" alt="Intro Avatar">
-    <p id="introText"></p>
-    <button id="introSkipBtn">Skip</button>
-    <button id="introEnterBtn" style="display:none;">Enter Game</button>
+  <!-- INTRO OVERLAY (ADD-ON) -->
+  <div id="introOverlay" class="intro-overlay">
+    <div class="intro-panel">
+      <img src="assets/avatar/AvatarOne.png" class="intro-avatar" alt="Host avatar">
+      <div class="intro-text-wrapper">
+        <p id="introText"></p>
+        <div class="intro-buttons">
+          <button id="introSkipBtn">Skip</button>
+          <button id="introEnterBtn">Enter Game</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <header>
