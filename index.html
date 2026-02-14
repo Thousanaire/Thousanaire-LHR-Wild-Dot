@@ -13,18 +13,21 @@
 
     <div id="joinGame">
       <input type="text" id="nameInput" placeholder="Enter your name" aria-label="Enter your name">
+
       <select id="avatarSelect" aria-label="Choose avatar">
         <option value="assets/avatar/AvatarOne.png">Avatar 1</option>
         <option value="assets/avatar/AvatarTwo.png">Avatar 2</option>
         <option value="assets/avatar/Avatar3.png">Avatar 3</option>
         <option value="assets/avatar/AvatarFour.png">Avatar 4</option>
       </select>
+
       <select id="colorSelect" aria-label="Choose color">
         <option value="#ff4081">Pink</option>
         <option value="#7c4dff">Purple</option>
         <option value="#00e5ff">Cyan</option>
         <option value="#ffeb3b">Gold</option>
       </select>
+
       <button id="joinBtn">Join Game</button>
     </div>
   </header>
@@ -34,48 +37,51 @@
     <section id="game">
       <h2>GAME BOARD</h2>
 
-      <div id="gameContainer">
-        <div id="table">
-          <!-- TOP PLAYER -->
-          <div class="player top" id="player0">
-            <img src="assets/avatar/AvatarOne.png" class="avatar" alt="Player 0 Avatar">
-            <div class="name"></div>
-            <div class="chips"></div>
-          </div>
-
-          <!-- LEFT PLAYER -->
-          <div class="player left" id="player1">
-            <img src="assets/avatar/AvatarTwo.png" class="avatar" alt="Player 1 Avatar">
-            <div class="name"></div>
-            <div class="chips"></div>
-          </div>
-
-          <!-- CENTER AREA -->
-          <div id="centerArea">
-            <div id="diceArea"></div>
-            <div id="centerPot">Hub Pot: 0</div>
-          </div>
-
-          <!-- RIGHT PLAYER -->
-          <div class="player right" id="player2">
-            <img src="assets/avatar/Avatar3.png" class="avatar" alt="Player 2 Avatar">
-            <div class="name"></div>
-            <div class="chips"></div>
-          </div>
-
-          <!-- BOTTOM PLAYER -->
-          <div class="player bottom" id="player3">
-            <img src="assets/avatar/AvatarFour.png" class="avatar" alt="Player 3 Avatar">
-            <div class="name"></div>
-            <div class="chips"></div>
-          </div>
+      <div id="table">
+        <!-- TOP PLAYER -->
+        <div class="player top" id="player0">
+          <img src="assets/avatar/AvatarOne.png" class="avatar" alt="Player 0 Avatar">
+          <div class="name"></div>
+          <div class="chips"></div>
         </div>
 
-        <!-- CONTROLS -->
-        <div class="controls">
-          <button id="rollBtn">Roll Dice</button>
-          <button id="resetBtn">Reset Game</button>
+        <!-- LEFT PLAYER -->
+        <div class="player left" id="player1">
+          <img src="assets/avatar/AvatarTwo.png" class="avatar" alt="Player 1 Avatar">
+          <div class="name"></div>
+          <div class="chips"></div>
         </div>
+
+        <!-- CENTER AREA -->
+        <div id="centerArea">
+          <div id="diceArea">
+            <img src="assets/dice/die1.png" class="die" id="die1" alt="Die 1">
+            <img src="assets/dice/die2.png" class="die" id="die2" alt="Die 2">
+            <img src="assets/dice/die3.png" class="die" id="die3" alt="Die 3">
+          </div>
+
+          <div id="centerPot">Hub Pot: 0</div>
+        </div>
+
+        <!-- RIGHT PLAYER -->
+        <div class="player right" id="player2">
+          <img src="assets/avatar/Avatar3.png" class="avatar" alt="Player 2 Avatar">
+          <div class="name"></div>
+          <div class="chips"></div>
+        </div>
+
+        <!-- BOTTOM PLAYER -->
+        <div class="player bottom" id="player3">
+          <img src="assets/avatar/AvatarFour.png" class="avatar" alt="Player 3 Avatar">
+          <div class="name"></div>
+          <div class="chips"></div>
+        </div>
+      </div>
+
+      <!-- CONTROLS -->
+      <div class="controls">
+        <button id="rollBtn">Roll Dice</button>
+        <button id="resetBtn">Reset Game</button>
       </div>
 
       <div id="results"></div>
@@ -99,7 +105,9 @@
       <!-- CHAT BOX -->
       <section id="chat">
         <h2>Chat Box</h2>
+
         <div id="chatMessages"></div>
+
         <div class="chat-input">
           <input type="text" id="chatInput" placeholder="Type a message..." aria-label="Chat input">
           <button id="sendBtn">Send</button>
