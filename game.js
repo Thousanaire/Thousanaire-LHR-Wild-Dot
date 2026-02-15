@@ -1,33 +1,25 @@
 /* ============================================================
-   INTRO AVATAR + TYPEWRITER + MP3 VOICE-OVER
+   INTRO AVATAR + MP3 VOICE-OVER (TIMED CUE SYSTEM)
    ============================================================ */
 
-const introLines = [
-  "🎉 Welcome to THOUSANAIRE: LEFT HUB RIGHT Wild! 🎉",
-  "",
-  "Ready to play? Here’s how it goes! Every player starts with three chips.",
-  "",
-  "On your turn, roll up to three dice — one for each chip you have.",
-  "In later rounds, you can still roll up to three dice, but only as many as the chips you’ve got!",
-  "(Two chips? Two dice. One chip? One die. Four chips? Still just three — that’s the max!)",
-  "",
-  "Roll LEFT? Pass a chip to the player on your left.",
-  "Roll RIGHT? Give one to your right.",
-  "Roll HUB? Drop a chip into the center pot — the hub!",
-  "",
-  "Roll a DOT, and you’re safe — you keep your chip.",
-  "",
-  "Roll a WILD, and things get exciting!",
-  "You can cancel a result or steal chips — and if you roll three WILDs, you take the entire hub pot!",
-  "",
-  "Players with zero chips must sit tight —",
-  "but if a full round passes and you still haven’t gained any chips… you’re eliminated! 💥",
-  "",
-  "Keep rolling, keep laughing, and when only one player still has chips...",
-  "",
-  "That player is the Thousanaire Champion! 🎉",
-  "",
-  "Good luck, players — let’s roll!"
+// Each line appears exactly when the MP3 reaches that timestamp (seconds)
+const introScript = [
+  { time: 0.0,  text: "🎉 Welcome to THOUSANAIRE: LEFT HUB RIGHT Wild! 🎉" },
+  { time: 2.5,  text: "Ready to play? Here’s how it goes! Every player starts with three chips." },
+  { time: 6.0,  text: "On your turn, roll up to three dice — one for each chip you have." },
+  { time: 10.0, text: "In later rounds, you can still roll up to three dice, but only as many as the chips you’ve got!" },
+  { time: 15.0, text: "(Two chips? Two dice. One chip? One die. Four chips? Still just three — that’s the max!)" },
+  { time: 20.0, text: "Roll LEFT? Pass a chip to the player on your left." },
+  { time: 23.5, text: "Roll RIGHT? Give one to your right." },
+  { time: 26.5, text: "Roll HUB? Drop a chip into the center pot — the hub!" },
+  { time: 30.0, text: "Roll a DOT, and you’re safe — you keep your chip." },
+  { time: 33.5, text: "Roll a WILD, and things get exciting!" },
+  { time: 36.5, text: "You can cancel a result or steal chips — and if you roll three WILDs, you take the entire hub pot!" },
+  { time: 42.5, text: "Players with zero chips must sit tight —" },
+  { time: 45.0, text: "but if a full round passes and you still haven’t gained any chips… you’re eliminated! 💥" },
+  { time: 50.0, text: "Keep rolling, keep laughing, and when only one player still has chips..." },
+  { time: 54.0, text: "That player is the Thousanaire Champion! 🎉" },
+  { time: 58.0, text: "Good luck, players — let’s roll!" }
 ];
 
 function startIntroOverlay() {
@@ -41,10 +33,7 @@ function startIntroOverlay() {
 
   if (!overlay || !textEl || !skipBtn || !enterBtn || !voice || !avatar || !mouth) return;
 
-  let lineIndex = 0;
-  let charIndex = 0;
-  let typing = true;
-  let typingTimeout = null;
+  let currentIndex = 0;
   let mouthInterval = null;
 
   // Mobile: first tap unlocks audio
@@ -59,6 +48,7 @@ function startIntroOverlay() {
     { once: true }
   );
 
+  // Mouth animation when speaking
   voice.addEventListener("play", () => {
     avatar.classList.add("talking");
     mouthInterval = setInterval(() => {
@@ -78,43 +68,33 @@ function startIntroOverlay() {
     mouth.style.opacity = "0";
   }
 
-  function typeNextChar() {
-    if (!typing) return;
+  // Sync text to MP3 timestamps
+  voice.addEventListener("timeupdate", () => {
+    if (
+      currentIndex < introScript.length &&
+      voice.currentTime >= introScript[currentIndex].time
+    ) {
+      textEl.textContent = introScript[currentIndex].text;
+      currentIndex++;
 
-    const line = introLines[lineIndex] || "";
-    textEl.textContent = line.slice(0, charIndex);
-
-    if (charIndex < line.length) {
-      charIndex++;
-      typingTimeout = setTimeout(typeNextChar, 38);
-    } else {
-      if (lineIndex < introLines.length - 1) {
-        typingTimeout = setTimeout(() => {
-          lineIndex++;
-          charIndex = 0;
-          typeNextChar();
-        }, 950);
-      } else {
+      if (currentIndex === introScript.length) {
         enterBtn.style.display = "inline-block";
       }
     }
-  }
+  });
 
   function endIntro() {
-    typing = false;
-    if (typingTimeout) clearTimeout(typingTimeout);
-
     voice.pause();
     voice.currentTime = 0;
     stopTalking();
-
     overlay.style.display = "none";
   }
 
   skipBtn.addEventListener("click", endIntro);
   enterBtn.addEventListener("click", endIntro);
 
-  typeNextChar();
+  // Start playback
+  voice.play().catch(() => {});
 }
 
 /* ============================================================
@@ -210,6 +190,16 @@ function getRightSeatIndex(seat) {
 }
 
 document.getElementById("rollBtn").addEventListener("click", () => {
+  const resultsEl = document.getElementById("results");
+
+  // REQUIRE 4 PLAYERS MINIMUM
+  if (activePlayerCount() < 4) {
+    if (resultsEl) {
+      resultsEl.innerText = "4 players are required to start the game.";
+    }
+    return;
+  }
+
   if (players.length === 0) return;
   if (!players[currentPlayer] || eliminated[currentPlayer]) return;
 
