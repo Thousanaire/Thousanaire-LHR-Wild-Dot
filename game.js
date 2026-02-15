@@ -39,12 +39,15 @@ function startIntroOverlay() {
   const avatar = document.querySelector(".intro-avatar");
   const mouth = document.getElementById("avatarMouth");
 
+  if (!overlay || !textEl || !skipBtn || !enterBtn || !voice || !avatar || !mouth) return;
+
   let lineIndex = 0;
   let charIndex = 0;
   let typing = true;
   let typingTimeout = null;
   let mouthInterval = null;
 
+  // Mobile: first tap unlocks audio
   overlay.addEventListener(
     "click",
     () => {
@@ -115,10 +118,10 @@ function startIntroOverlay() {
 }
 
 /* ============================================================
-   GAME LOGIC (UNCHANGED EXCEPT 2+ PLAYER RULE)
+   YOUR EXISTING GAME CODE
    ============================================================ */
 
-let players = [];
+let players = [];          // logical seats: 0=TOP,1=RIGHT,2=BOTTOM,3=LEFT
 let chips = [0, 0, 0, 0];
 let centerPot = 0;
 let currentPlayer = 0;
@@ -179,19 +182,35 @@ document.getElementById("joinBtn").addEventListener("click", () => {
   }
 });
 
-/* ============================================================
-   2+ PLAYER RULE ADDED HERE
-   ============================================================ */
+document.getElementById("resetBtn").addEventListener("click", () => {
+  resetGame();
+});
+
+document.getElementById("playAgainBtn").addEventListener("click", () => {
+  resetGame();
+  hideGameOver();
+});
+
+function getLeftSeatIndex(seat) {
+  let idx = seat;
+  for (let i = 0; i < 4; i++) {
+    idx = (idx + 1) % 4;
+    if (players[idx] && !eliminated[idx]) return idx;
+  }
+  return seat;
+}
+
+function getRightSeatIndex(seat) {
+  let idx = seat;
+  for (let i = 0; i < 4; i++) {
+    idx = (idx - 1 + 4) % 4;
+    if (players[idx] && !eliminated[idx]) return idx;
+  }
+  return seat;
+}
 
 document.getElementById("rollBtn").addEventListener("click", () => {
-
-  // NEW RULE: Require at least 2 active players
-  if (activePlayerCount() < 2) {
-    document.getElementById("results").innerText =
-      "At least 2 players are required to play.";
-    return;
-  }
-
+  if (players.length === 0) return;
   if (!players[currentPlayer] || eliminated[currentPlayer]) return;
 
   playSound("sndRoll");
@@ -224,28 +243,6 @@ document.getElementById("rollBtn").addEventListener("click", () => {
 
   openWildChoicePanel(currentPlayer, outcomes);
 });
-
-/* ============================================================
-   REST OF YOUR GAME LOGIC (UNCHANGED)
-   ============================================================ */
-
-function getLeftSeatIndex(seat) {
-  let idx = seat;
-  for (let i = 0; i < 4; i++) {
-    idx = (idx + 1) % 4;
-    if (players[idx] && !eliminated[idx]) return idx;
-  }
-  return seat;
-}
-
-function getRightSeatIndex(seat) {
-  let idx = seat;
-  for (let i = 0; i < 4; i++) {
-    idx = (idx - 1 + 4) % 4;
-    if (players[idx] && !eliminated[idx]) return idx;
-  }
-  return seat;
-}
 
 function rollDie() {
   const sides = ["Left", "Right", "Hub", "Dottt", "Wild"];
@@ -448,8 +445,7 @@ function highlightCurrentPlayer() {
     "Current turn: " + (players[currentPlayer] || "-");
 }
 
-/* WILD LOGIC — unchanged from your original code */
-/* (kept exactly as you provided it) */
+/* WILD LOGIC */
 
 function openWildChoicePanel(playerIndex, outcomes) {
   const wildContent = document.getElementById("wildContent");
@@ -512,13 +508,353 @@ function openWildChoicePanel(playerIndex, outcomes) {
   handleWildsNormalFlow(playerIndex, outcomes, wildIndices, leftIndices, rightIndices, hubIndices);
 }
 
-/* (Wild logic continues unchanged…) */
+function handleThreeWildSteals(playerIndex) {
+  const wildContent = document.getElementById("wildContent");
+  const rollBtn = document.getElementById("rollBtn");
+  
+  let stealsRemaining = 3;
 
-/* ============================================================
-   DOMContentLoaded — start intro
-   ============================================================ */
+  function renderStealPanel() {
+    wildContent.innerHTML = `
+      <h3 style="color: orange;">⚔️ ${players[playerIndex]} - ${stealsRemaining} steals left</h3>
+      <p>Steal from any player (multiple OK):</p>
+    `;
 
+    const opponents = players
+      .map((p, i) => ({ name: p, index: i, chips: chips[i] }))
+      .filter(o => 
+        o.index !== playerIndex &&
+        o.name && 
+        !eliminated[o.index] && 
+        o.chips > 0
+      );
+
+    opponents.forEach(opponent => {
+      const btn1 = document.createElement("button");
+      btn1.textContent = `1 chip ← ${opponent.name} (${opponent.chips})`;
+      btn1.style.padding = "10px";
+      btn1.onclick = () => performSteal(opponent.index, 1);
+      wildContent.appendChild(btn1);
+
+      if (opponent.chips >= 2) {
+        const btn2 = document.createElement("button");
+        btn2.textContent = `2 chips ← ${opponent.name}`;
+        btn2.style.padding = "10px";
+        btn2.onclick = () => performSteal(opponent.index, 2);
+        wildContent.appendChild(btn2);
+      }
+
+      if (opponent.chips >= 3) {
+        const btn3 = document.createElement("button");
+        btn3.textContent = `3 chips ← ${opponent.name}`;
+        btn3.style.padding = "10px";
+        btn3.onclick = () => performSteal(opponent.index, 3);
+        wildContent.appendChild(btn3);
+      }
+      wildContent.appendChild(document.createElement("br"));
+    });
+
+    if (stealsRemaining === 0) {
+      const finishBtn = document.createElement("button");
+      finishBtn.textContent = "✅ Finish turn";
+      finishBtn.style.fontSize = "1.3em";
+      finishBtn.style.padding = "15px";
+      finishBtn.style.background = "#4CAF50";
+      finishBtn.onclick = finishThreeWildTurn;
+      wildContent.appendChild(finishBtn);
+    }
+  }
+
+  function performSteal(fromIndex, count) {
+    if (stealsRemaining < count) return;
+    
+    const actualCount = Math.min(count, chips[fromIndex]);
+    for (let i = 0; i < actualCount; i++) {
+      chips[fromIndex]--;
+      chips[playerIndex]++;
+      animateChipTransfer(fromIndex, playerIndex, "wild");
+      playSound("sndWild");
+    }
+    
+    if (chips[fromIndex] === 0) danger[fromIndex] = true;
+    danger[playerIndex] = false;
+    stealsRemaining -= actualCount;
+    updateTable();
+    setTimeout(renderStealPanel, 600);
+  }
+
+  function finishThreeWildTurn() {
+    document.getElementById("results").innerText = 
+      `${players[playerIndex]} stole 3 chips with Triple Wilds! ⚔️`;
+    document.getElementById("wildContent").innerHTML = "";
+    rollBtn.disabled = false;
+    handleEndOfTurn();
+  }
+
+  renderStealPanel();
+}
+
+function handleWildsNormalFlow(playerIndex, outcomes, wildIndices, leftIndices, rightIndices, hubIndices) {
+  const wildContent = document.getElementById("wildContent");
+  const rollBtn = document.getElementById("rollBtn");
+
+  const canceledIndices = new Set();
+  const wildUsedAsCancel = new Set();
+  const steals = [];
+
+  function remainingWildCount() {
+    return Math.max(0, wildIndices.length - (wildUsedAsCancel.size + steals.length));
+  }
+
+  function renderWildPanel() {
+    wildContent.innerHTML = `
+      <h3>${players[playerIndex]} rolled: ${outcomes.join(", ")}</h3>
+      <p>Wilds left: ${remainingWildCount()}</p>
+    `;
+
+    function firstNotCanceled(indicesArray) {
+      return indicesArray.find(i => !canceledIndices.has(i));
+    }
+
+    function pickFreeWildIndex() {
+      return wildIndices.find(w => !wildUsedAsCancel.has(w) && !steals.some(s => s.wildIndex === w));
+    }
+
+    const cancelActions = [
+      {label: "Left", indices: leftIndices},
+      {label: "Right", indices: rightIndices},
+      {label: "Hub", indices: hubIndices}
+    ];
+
+    cancelActions.forEach(({label, indices}) => {
+      const available = firstNotCanceled(indices);
+      if (available !== undefined && remainingWildCount() > 0) {
+        const btn = document.createElement("button");
+        btn.textContent = `❌ Cancel ${label}`;
+        btn.style.padding = "8px";
+        btn.onclick = () => {
+          const freeWild = pickFreeWildIndex();
+          if (freeWild !== undefined) {
+            canceledIndices.add(available);
+            wildUsedAsCancel.add(freeWild);
+            renderWildPanel();
+          }
+        };
+        wildContent.appendChild(btn);
+      }
+    });
+
+    if (remainingWildCount() > 0) {
+      const opponents = players
+        .map((p, i) => ({ name: p, index: i }))
+        .filter(o => o.index !== playerIndex && pExists(o.index) && chips[o.index] > 0 && !eliminated[o.index]);
+
+      opponents.forEach(opponent => {
+        const btn = document.createElement("button");
+        btn.textContent = `💰 Steal from ${opponent.name}`;
+        btn.style.padding = "8px";
+        btn.onclick = () => {
+          const freeWild = pickFreeWildIndex();
+          if (freeWild !== undefined && chips[opponent.index] > 0) {
+            chips[opponent.index]--;
+            chips[playerIndex]++;
+            animateChipTransfer(opponent.index, playerIndex, "wild");
+            playSound("sndWild");
+            if (chips[opponent.index] === 0) danger[opponent.index] = true;
+            danger[playerIndex] = false;
+            updateTable();
+            steals.push({fromIndex: opponent.index, wildIndex: freeWild});
+            setTimeout(renderWildPanel, 600);
+          }
+        };
+        wildContent.appendChild(btn);
+      });
+    }
+
+    if (remainingWildCount() === 0) {
+      setTimeout(() => {
+        document.getElementById("results").innerText = 
+          `${players[playerIndex]} used all Wilds! Applying results...`;
+        applyWildAndOutcomes(playerIndex, outcomes, {
+          canceledIndices, wildIndices, wildUsedAsCancel, steals
+        });
+        wildContent.innerHTML = "";
+        rollBtn.disabled = false;
+        handleEndOfTurn();
+      }, 800);
+    }
+  }
+
+  renderWildPanel();
+}
+
+function applyOutcomesOnly(playerIndex, outcomes) {
+  outcomes.forEach((o) => {
+    if (o === "Left" && chips[playerIndex] > 0) {
+      const leftSeat = getLeftSeatIndex(playerIndex);
+      chips[playerIndex]--;
+      if (chips[playerIndex] === 0) danger[playerIndex] = true;
+      chips[leftSeat]++;
+      danger[leftSeat] = false;
+      animateChipTransfer(playerIndex, leftSeat, "left");
+      playSound("sndChip");
+    } else if (o === "Right" && chips[playerIndex] > 0) {
+      const rightSeat = getRightSeatIndex(playerIndex);
+      chips[playerIndex]--;
+      if (chips[playerIndex] === 0) danger[playerIndex] = true;
+      chips[rightSeat]++;
+      danger[rightSeat] = false;
+      animateChipTransfer(playerIndex, rightSeat, "right");
+      playSound("sndChip");
+    } else if (o === "Hub" && chips[playerIndex] > 0) {
+      chips[playerIndex]--;
+      if (chips[playerIndex] === 0) danger[playerIndex] = true;
+      centerPot++;
+      animateChipTransfer(playerIndex, null, "hub");
+      playSound("sndChip");
+    }
+  });
+  updateTable();
+}
+
+function applyWildAndOutcomes(playerIndex, outcomes, wildData) {
+  const { canceledIndices, wildIndices, wildUsedAsCancel, steals } = wildData;
+
+  outcomes.forEach((o, i) => {
+    if (canceledIndices.has(i)) return;
+    if (wildIndices.includes(i) && !wildUsedAsCancel.has(i) && !steals.some(s => s.wildIndex === i)) return;
+
+    if (o === "Left" && chips[playerIndex] > 0) {
+      const leftSeat = getLeftSeatIndex(playerIndex);
+      chips[playerIndex]--;
+      if (chips[playerIndex] === 0) danger[playerIndex] = true;
+      chips[leftSeat]++;
+      danger[leftSeat] = false;
+      animateChipTransfer(playerIndex, leftSeat, "left");
+      playSound("sndChip");
+    } else if (o === "Right" && chips[playerIndex] > 0) {
+      const rightSeat = getRightSeatIndex(playerIndex);
+      chips[playerIndex]--;
+      if (chips[playerIndex] === 0) danger[playerIndex] = true;
+      chips[rightSeat]++;
+      danger[rightSeat] = false;
+      animateChipTransfer(playerIndex, rightSeat, "right");
+      playSound("sndChip");
+    } else if (o === "Hub" && chips[playerIndex] > 0) {
+      chips[playerIndex]--;
+      if (chips[playerIndex] === 0) danger[playerIndex] = true;
+      centerPot++;
+      animateChipTransfer(playerIndex, null, "hub");
+      playSound("sndChip");
+    }
+  });
+  updateTable();
+}
+
+function pExists(i) {
+  return typeof players[i] !== "undefined" && players[i] !== null;
+}
+
+function addHistory(player, outcomes) {
+  const historyDiv = document.getElementById("rollHistory");
+  const entry = document.createElement("div");
+  entry.classList.add("history-entry");
+  entry.textContent = `${player} rolled: (${outcomes.join(", ")})`;
+  historyDiv.prepend(entry);
+}
+
+function getSeatCenter(logicalSeat) {
+  const domIndex = domSeatForLogical[logicalSeat];
+  const el = document.getElementById("player" + domIndex);
+  if (!el) return null;
+  const rect = el.getBoundingClientRect();
+  return {
+    x: rect.left + rect.width / 2,
+    y: rect.top + rect.height / 2
+  };
+}
+
+function animateChipTransfer(fromSeat, toSeat, type) {
+  let fromPos = null;
+  let toPos = null;
+
+  if (fromSeat !== null && fromSeat !== undefined) {
+    fromPos = getSeatCenter(fromSeat);
+  }
+
+  if (type === "hub") {
+    const pot = document.getElementById("centerPot");
+    const rect = pot.getBoundingClientRect();
+    toPos = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  } else if (toSeat !== null && toSeat !== undefined) {
+    toPos = getSeatCenter(toSeat);
+  }
+
+  if (!fromPos || !toPos) return;
+
+  const chip = document.createElement("div");
+  chip.className = "chip-fly";
+  chip.style.left = fromPos.x + "px";
+  chip.style.top = fromPos.y + "px";
+  chip.style.opacity = "1";
+  chip.style.transform = "scale(1)";
+
+  document.body.appendChild(chip);
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      chip.style.left = toPos.x + "px";
+      chip.style.top = toPos.y + "px";
+      chip.style.transform = "scale(1.35)";
+    });
+  });
+
+  setTimeout(() => {
+    chip.style.opacity = "0";
+    chip.style.transform = "scale(0.7)";
+    setTimeout(() => chip.remove(), 300);
+  }, 500);
+}
+
+function resetGame() {
+  centerPot = 0;
+  eliminated = [false, false, false, false];
+  danger = [false, false, false, false];
+
+  for (let i = 0; i < 4; i++) {
+    if (players[i]) {
+      chips[i] = 3;
+    } else {
+      chips[i] = 0;
+    }
+  }
+
+  currentPlayer = 0;
+  document.getElementById("rollBtn").disabled = false;
+  document.getElementById("results").textContent = "";
+  document.getElementById("rollHistory").innerHTML = "";
+  document.getElementById("wildContent").innerHTML = "";
+  hideGameOver();
+  updateTable();
+}
+
+function showRandomDice() {
+  const diceArea = document.getElementById("diceArea");
+  let randomFaces = [];
+  for (let i = 0; i < 3; i++) randomFaces.push(rollDie());
+  diceArea.innerHTML = renderDice(randomFaces);
+
+  const diceImgs = diceArea.querySelectorAll(".die");
+  diceImgs.forEach(die => {
+    die.classList.add("roll");
+    setTimeout(() => die.classList.remove("roll"), 600);
+  });
+}
+
+/* Single DOMContentLoaded: game init + intro */
 document.addEventListener("DOMContentLoaded", () => {
   initSeatMapping();
   showRandomDice();
-  idleDiceInterval = setInterval(show
+  idleDiceInterval = setInterval(showRandomDice, 2000);
+  startIntroOverlay();
+});
