@@ -14,30 +14,37 @@ function startIntroOverlay() {
   // Subtle idle float animation (CSS-driven)
   avatar.classList.add("idle-float");
 
-  // **IMMEDIATELY START VOICE** - plays right when site loads
-  voice.play().catch(() => {
-    // Autoplay blocked by browser - will start on first user interaction
-  });
+  let hasInteracted = false;
+
+  // **FIRST USER INTERACTION starts voice** (works around browser restrictions)
+  function handleFirstInteraction() {
+    if (!hasInteracted && voice.paused) {
+      hasInteracted = true;
+      voice.currentTime = 0;
+      voice.play().catch(() => {}); // Silent fail if still blocked
+    }
+  }
+
+  // Single interaction unlock for entire overlay
+  overlay.addEventListener("click", handleFirstInteraction, { once: true });
+  overlay.addEventListener("touchstart", handleFirstInteraction, { once: true });
 
   function endIntro() {
-    // **RELIABLY STOP VOICE** on skip/enter
     voice.pause();
     voice.currentTime = 0;
     overlay.style.display = "none";
   }
 
-  // Add listeners AFTER voice starts (ensures reliable stopping)
+  // Skip/Enter buttons IMMEDIATELY stop voice
   skipBtn.addEventListener("click", endIntro);
   enterBtn.addEventListener("click", endIntro);
-
-  // Remove mobile unlock listener since we now autoplay immediately
 }
 
 /* ============================================================
    YOUR EXISTING GAME CODE
    ============================================================ */
 
-let players = [];          // logical seats: 0=TOP,1=RIGHT,2=BOTTOM,3=LEFT
+let players = [];          
 let chips = [0, 0, 0, 0];
 let centerPot = 0;
 let currentPlayer = 0;
@@ -51,8 +58,6 @@ let domSeatForLogical = [0, 1, 2, 3];
 
 let playerAvatars = [null, null, null, null];
 let playerColors = [null, null, null, null];
-
-// NEW: track if game has started (first valid roll done)
 let gameStarted = false;
 
 function initSeatMapping() {
@@ -131,7 +136,6 @@ function getRightSeatIndex(seat) {
 document.getElementById("rollBtn").addEventListener("click", () => {
   const resultsEl = document.getElementById("results");
 
-  // REQUIRE 4 PLAYERS ONLY BEFORE GAME START
   if (!gameStarted && activePlayerCount() < 4) {
     if (resultsEl) {
       resultsEl.innerText = "4 players are required to start the game.";
@@ -142,7 +146,6 @@ document.getElementById("rollBtn").addEventListener("click", () => {
   if (players.length === 0) return;
   if (!players[currentPlayer] || eliminated[currentPlayer]) return;
 
-  // From here, consider the game started
   gameStarted = true;
 
   playSound("sndRoll");
@@ -264,188 +267,4 @@ function nextTurn() {
       if (danger[next]) {
         eliminated[next] = true;
         document.getElementById("results").innerText = 
-          `${players[next]} had no chips after grace turn - ELIMINATED!`;
-        updateTable();
-        playSound("sndWild");
-        continue;
-      } else {
-        danger[next] = true;
-        document.getElementById("results").innerText = 
-          `${players[next]} has 0 chips - one grace turn given!`;
-        continue;
-      }
-    }
-
-    break;
-  }
-
-  currentPlayer = next;
-  highlightCurrentPlayer();
-}
-
-function activePlayerCount() {
-  return players.filter((p, i) => p && !eliminated[i]).length;
-}
-
-function getLastActivePlayerIndex(excludeIndex = null) {
-  let idx = -1;
-  players.forEach((p, i) => {
-    if (p && !eliminated[i] && i !== excludeIndex) idx = i;
-  });
-  return idx;
-}
-
-function handleEndOfTurn() {
-  const activeCount = activePlayerCount();
-
-  if (activeCount === 2 && chips[currentPlayer] === 0) {
-    const winnerIndex = getLastActivePlayerIndex(currentPlayer);
-    if (winnerIndex !== -1) {
-      document.getElementById("results").innerText = 
-        `${players[currentPlayer]} has 0 chips with 2 players left - ${players[winnerIndex]} WINS!`;
-      showGameOver(winnerIndex);
-      return;
-    }
-  }
-
-  checkWinner();
-  if (!isGameOver()) {
-    nextTurn();
-  }
-}
-
-function isGameOver() {
-  return document.getElementById("rollBtn").disabled &&
-         !document.getElementById("gameOverOverlay").classList.contains("hidden");
-}
-
-function checkWinner() {
-  let activePlayers = activePlayerCount();
-  if (activePlayers === 1) {
-    let winnerIndex = getLastActivePlayerIndex(null);
-    if (winnerIndex !== -1) {
-      document.getElementById("results").innerText = 
-        `${players[winnerIndex]} is the LAST MAN STANDING!`;
-      showGameOver(winnerIndex);
-    }
-  }
-}
-
-function showGameOver(winnerIndex) {
-  const overlay = document.getElementById("gameOverOverlay");
-  const text = document.getElementById("gameOverText");
-  const title = document.getElementById("gameOverTitle");
-
-  const winnerName = players[winnerIndex] || "Player";
-  title.textContent = "🏆 GAME OVER 🏆";
-  text.textContent = `${winnerName} is the LAST MAN STANDING!\nWins ${centerPot} chips from hub pot!`;
-
-  overlay.classList.remove("hidden");
-  document.getElementById("rollBtn").disabled = true;
-  playSound("sndWin");
-}
-
-function hideGameOver() {
-  document.getElementById("gameOverOverlay").classList.add("hidden");
-}
-
-function highlightCurrentPlayer() {
-  document.querySelectorAll('.player').forEach(el => {
-    el.classList.remove('active');
-    el.style.boxShadow = "none";
-  });
-
-  if (players.length === 0) {
-    document.getElementById("currentTurn").textContent = "Current turn: -";
-    return;
-  }
-
-  if (eliminated[currentPlayer] || !players[currentPlayer]) {
-    document.getElementById("currentTurn").textContent = "Current turn: -";
-    return;
-  }
-
-  const domIndex = domSeatForLogical[currentPlayer];
-  const activeDiv = document.getElementById("player" + domIndex);
-  if (activeDiv) {
-    activeDiv.classList.add('active');
-    const color = playerColors[currentPlayer] || "#ff4081";
-    activeDiv.style.boxShadow = `0 0 15px ${color}`;
-  }
-
-  document.getElementById("currentTurn").textContent =
-    "Current turn: " + (players[currentPlayer] || "-");
-}
-
-/* WILD LOGIC */
-
-function openWildChoicePanel(playerIndex, outcomes) {
-  const wildContent = document.getElementById("wildContent");
-  const rollBtn = document.getElementById("rollBtn");
-  rollBtn.disabled = true;
-
-  const wildIndices = [];
-  const leftIndices = [];
-  const rightIndices = [];
-  const hubIndices = [];
-
-  outcomes.forEach((o, i) => {
-    if (o === "Wild") wildIndices.push(i);
-    else if (o === "Left") leftIndices.push(i);
-    else if (o === "Right") rightIndices.push(i);
-    else if (o === "Hub") hubIndices.push(i);
-  });
-
-  const wildCount = wildIndices.length;
-
-  if (wildCount === 0) {
-    document.getElementById("results").innerText = 
-      `${players[playerIndex]} rolled: ${outcomes.join(", ")}`;
-    applyOutcomesOnly(playerIndex, outcomes);
-    wildContent.innerHTML = "";
-    rollBtn.disabled = false;
-    handleEndOfTurn();
-    return;
-  }
-
-  if (wildCount === 3) {
-    wildContent.innerHTML = `
-      <h3 style="color: gold;">🎲 ${players[playerIndex]} rolled TRIPLE WILDS! 🎲</h3>
-      <p style="font-size: 1.1em;">Choose your epic reward:</p>
-      <button id="takePotBtn3" style="font-size: 1.3em; padding: 20px; margin: 10px; background: #4CAF50;">
-        💰 Take hub pot (${centerPot} chips)
-      </button>
-      <button id="steal3Btn" style="font-size: 1.3em; padding: 20px; margin: 10px; background: #FF9800;">
-        ⚔️ Steal 3 chips from players
-      </button>
-    `;
-
-    document.getElementById("takePotBtn3").onclick = () => {
-      chips[playerIndex] += centerPot;
-      centerPot = 0;
-      document.getElementById("results").innerText =
-        `${players[playerIndex]} takes the entire hub pot! 💰`;
-      updateTable();
-      wildContent.innerHTML = "";
-      rollBtn.disabled = false;
-      handleEndOfTurn();
-    };
-
-    document.getElementById("steal3Btn").onclick = () => {
-      handleThreeWildSteals(playerIndex);
-    };
-    return;
-  }
-
-  handleWildsNormalFlow(playerIndex, outcomes, wildIndices, leftIndices, rightIndices, hubIndices);
-}
-
-function handleThreeWildSteals(playerIndex) {
-  const wildContent = document.getElementById("wildContent");
-  const rollBtn = document.getElementById("rollBtn");
-  
-  let stealsRemaining = 3;
-
-  function renderStealPanel() {
-    wildContent.innerHTML = `
-      <h3 style="color: orange;">
+          `${players[next]}
