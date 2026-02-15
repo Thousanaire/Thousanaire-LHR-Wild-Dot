@@ -539,7 +539,7 @@ section {
 }
 
 /* ============================================================
-   INTRO OVERLAY — FINAL UPDATED VERSION
+   INTRO OVERLAY — CLEAN UPDATED VERSION
    ============================================================ */
 
 .intro-overlay {
@@ -552,7 +552,6 @@ section {
   z-index: 99999;
 }
 
-/* Panel centers everything */
 .intro-panel {
   position: relative;
   width: 100%;
@@ -570,7 +569,7 @@ section {
   display: block;
 }
 
-/* DESKTOP/LAPTOP: 4× bigger */
+/* DESKTOP */
 @media (min-width: 900px) {
   .intro-avatar {
     width: 800px;
@@ -578,21 +577,19 @@ section {
   }
 }
 
-/* MOBILE: full width */
+/* MOBILE */
 @media (max-width: 768px) {
   .intro-avatar {
     width: 100%;
   }
 }
 
-/* TYPEWRITER TEXT BELOW HOST IMAGE */
-.intro-text-wrapper {
-  width: 100%;
-  margin-top: 16px;
-  text-align: center;
+/* BUTTONS */
+.intro-buttons {
+  margin-top: 20px;
+  display: flex;
+  gap: 20px;
 }
 
-#introText {
-  font-size: 1.1rem;
-  line-height: 1.4;
-  color
+.intro-buttons button {
+  padding: 12px 24px;
