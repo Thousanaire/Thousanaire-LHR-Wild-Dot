@@ -1,42 +1,20 @@
 /* ============================================================
-   INTRO AVATAR + MP3 VOICE-OVER (TIMED CUE SYSTEM)
+   CLEAN INTRO — IMAGE + VOICE ONLY + SUBTLE FLOAT
    ============================================================ */
-
-// Each line appears exactly when the MP3 reaches that timestamp (seconds)
-const introScript = [
-  { time: 0.0,  text: "🎉 Welcome to THOUSANAIRE: LEFT HUB RIGHT Wild! 🎉" },
-  { time: 2.5,  text: "Ready to play? Here’s how it goes! Every player starts with three chips." },
-  { time: 6.0,  text: "On your turn, roll up to three dice — one for each chip you have." },
-  { time: 10.0, text: "In later rounds, you can still roll up to three dice, but only as many as the chips you’ve got!" },
-  { time: 15.0, text: "(Two chips? Two dice. One chip? One die. Four chips? Still just three — that’s the max!)" },
-  { time: 20.0, text: "Roll LEFT? Pass a chip to the player on your left." },
-  { time: 23.5, text: "Roll RIGHT? Give one to your right." },
-  { time: 26.5, text: "Roll HUB? Drop a chip into the center pot — the hub!" },
-  { time: 30.0, text: "Roll a DOT, and you’re safe — you keep your chip." },
-  { time: 33.5, text: "Roll a WILD, and things get exciting!" },
-  { time: 36.5, text: "You can cancel a result or steal chips — and if you roll three WILDs, you take the entire hub pot!" },
-  { time: 42.5, text: "Players with zero chips must sit tight —" },
-  { time: 45.0, text: "but if a full round passes and you still haven’t gained any chips… you’re eliminated! 💥" },
-  { time: 50.0, text: "Keep rolling, keep laughing, and when only one player still has chips..." },
-  { time: 54.0, text: "That player is the Thousanaire Champion! 🎉" },
-  { time: 58.0, text: "Good luck, players — let’s roll!" }
-];
 
 function startIntroOverlay() {
   const overlay = document.getElementById("introOverlay");
-  const textEl = document.getElementById("introText");
   const skipBtn = document.getElementById("introSkipBtn");
   const enterBtn = document.getElementById("introEnterBtn");
   const voice = document.getElementById("introVoice");
   const avatar = document.querySelector(".intro-avatar");
-  const mouth = document.getElementById("avatarMouth");
 
-  if (!overlay || !textEl || !skipBtn || !enterBtn || !voice || !avatar || !mouth) return;
+  if (!overlay || !skipBtn || !enterBtn || !voice || !avatar) return;
 
-  let currentIndex = 0;
-  let mouthInterval = null;
+  // Subtle idle float animation (CSS-driven)
+  avatar.classList.add("idle-float");
 
-  // Mobile: first tap unlocks audio
+  // Mobile audio unlock
   overlay.addEventListener(
     "click",
     () => {
@@ -48,52 +26,16 @@ function startIntroOverlay() {
     { once: true }
   );
 
-  // Mouth animation when speaking
-  voice.addEventListener("play", () => {
-    avatar.classList.add("talking");
-    mouthInterval = setInterval(() => {
-      mouth.style.opacity = mouth.style.opacity === "1" ? "0" : "1";
-    }, 120);
-  });
-
-  voice.addEventListener("pause", stopTalking);
-  voice.addEventListener("ended", stopTalking);
-
-  function stopTalking() {
-    avatar.classList.remove("talking");
-    if (mouthInterval) {
-      clearInterval(mouthInterval);
-      mouthInterval = null;
-    }
-    mouth.style.opacity = "0";
-  }
-
-  // Sync text to MP3 timestamps
-  voice.addEventListener("timeupdate", () => {
-    if (
-      currentIndex < introScript.length &&
-      voice.currentTime >= introScript[currentIndex].time
-    ) {
-      textEl.textContent = introScript[currentIndex].text;
-      currentIndex++;
-
-      if (currentIndex === introScript.length) {
-        enterBtn.style.display = "inline-block";
-      }
-    }
-  });
-
   function endIntro() {
     voice.pause();
     voice.currentTime = 0;
-    stopTalking();
     overlay.style.display = "none";
   }
 
   skipBtn.addEventListener("click", endIntro);
   enterBtn.addEventListener("click", endIntro);
 
-  // Start playback
+  // Start audio
   voice.play().catch(() => {});
 }
 
@@ -541,6 +483,7 @@ function handleThreeWildSteals(playerIndex) {
         btn3.onclick = () => performSteal(opponent.index, 3);
         wildContent.appendChild(btn3);
       }
+
       wildContent.appendChild(document.createElement("br"));
     });
 
