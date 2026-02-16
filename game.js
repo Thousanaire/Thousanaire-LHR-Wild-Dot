@@ -351,7 +351,7 @@ function showGameOver(winnerIndex) {
     overlay.classList.remove("hidden");
     document.getElementById("rollBtn").disabled = true;
     playSound("sndWin");
-  }, 2000);
+  }, 5000);
 }
 
 function hideGameOver() {
@@ -801,4 +801,5 @@ document.addEventListener("DOMContentLoaded", () => {
   idleDiceInterval = setInterval(showRandomDice, 2000);
   startIntroOverlay();
 });
+
 
